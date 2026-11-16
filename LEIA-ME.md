@@ -276,3 +276,9 @@ geral que seguiam ("padrões primeiro, toda extensão documentada";
 de voz separado: o `docs/writing-style.md` foi escrito a partir do estilo
 dos documentos dele e das suas regras de relatório. Também não tinha
 modelos de PR e de issue: os daqui seguem o CONTRIBUTING.md dele.
+
+## Licença
+
+O kit está sob a [licença MIT](LICENSE). Um projeto criado a partir do
+modelo não fica preso a ela: o `init-project.sh` pergunta a licença do
+próprio projeto e a registra no `REUSE.toml` e em `LICENSES/` do projeto.

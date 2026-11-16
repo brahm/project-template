@@ -7,6 +7,9 @@ skill).
 
 ## Changes since 1.1.0 (unreleased)
 
+* Added: The kit is under the MIT License (`LICENSE` at the root);
+  `README.md` and `LEIA-ME.md` say so. Projects made from the template
+  still choose their own licence.
 * Changed: `README.md` and `LEIA-ME.md` have a quick start, what is
   needed to install, how to make a template repository on GitHub, and a
   "Use" section on working with the agent day to day.

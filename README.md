@@ -275,3 +275,9 @@ of voice guide: `docs/writing-style.md` was written from the style its
 documents follow, and from the owner's rules on reporting. It had no pull
 request or issue templates either: the ones here follow its
 CONTRIBUTING.md.
+
+## License
+
+The kit is under the [MIT License](LICENSE). A project made from the
+template is not bound by it: `init-project.sh` asks for the project's own
+licence and records it in the project's `REUSE.toml` and `LICENSES/`.
