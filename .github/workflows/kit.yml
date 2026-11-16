@@ -1,0 +1,30 @@
+# Tests the kit on every change: a project is made from the template in a
+# temporary folder and its checks, state report, dashboard and guards are
+# run, as tools/test-kit.sh describes.
+name: Kit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Make a project from the template and check it
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install reuse, for the licence check of the new project
+        run: pipx install reuse
+      - name: Test the kit
+        run: tools/test-kit.sh

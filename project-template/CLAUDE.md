@@ -5,8 +5,8 @@ shared by every coding agent. Read it first and follow it.
 
 @AGENTS.md
 
-The project's skills are in `.claude/skills/`. Use them at the moments
-AGENTS.md describes: `plan-task-set` before starting, `defer-work` when
-something is left undone, `record-decision` when the owner decides,
-`validate-against-reference` before calling behaviour done, and
-`close-task-set` (or `close-phase`) at the end.
+`.claude/settings.json` runs `scripts/status.py` when a session starts, so
+the state of the project is already in your context, and allows the
+project's own check scripts to run without asking. The skills of
+`.claude/skills/` apply at the moments rule 2 of AGENTS.md names; the
+owner does not invoke them.

@@ -1,2 +1,7 @@
 /_site/
 __pycache__/
+# Secrets and settings of one machine never enter the repository.
+.env
+.env.*
+!.env.example
+.claude/settings.local.json

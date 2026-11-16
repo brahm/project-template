@@ -1,6 +1,6 @@
 ---
 name: report-to-owner
-description: Use when writing any report, status message, pull request description or summary for the project owner. Applies docs/writing-style.md and makes sure nothing left undone or moved is hidden.
+description: Use when writing any report, status message, pull request description or summary for the project owner. Applies docs/writing-style.md and makes sure nothing assumed, left undone or moved is hidden.
 ---
 
 # Report to the owner
@@ -13,12 +13,15 @@ owner's language (see `AGENTS.md`) and by `docs/writing-style.md`.
 2. **What it depends on**: what was checked and how (tests, reference),
    and anything that is a guess. Never claim a check you did not run; if
    tests fail, say which and show the output.
-3. **Left undone, explicitly**, one line per item: "Left undone: <item>
+3. **Decisions you assumed**, one line each: "Assumed: <decision>
+   (D-nnn), because <reason>." The owner confirms or replaces them; leave
+   the line out when there is none.
+4. **Left undone, explicitly**, one line per item: "Left undone: <item>
    (B-nnn), moved to phase <phase>, because <reason>." Write "Nothing was
    left undone" when that is true.
-4. **Decisions needed**, if any: the question, the options, your
+5. **Decisions needed**, if any: the question, the options, your
    recommendation and why. One question at a time.
-5. **Next step**, at most one sentence.
+6. **Next step**, at most one sentence.
 
 Style: full sentences, plain words, no arrow or dash chains, absolute
 dates, numbers with their date, ids cited (F-001, D-003, B-007, #42).

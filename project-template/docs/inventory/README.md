@@ -17,7 +17,7 @@ naming it in `docs/dashboard/config.toml`.
 | `status` | `Done`, `Partial`, `Started` (the base exists, the item does not work yet) or `Missing` |
 | `review` | `-`, or why the status must be checked again (the target changed, the check was not against the reference) |
 | `phase` | The phase of [roadmap.md](../roadmap.md) that owns the row; `done` for rows finished before the plan; `-` when out of scope |
-| `note` | How the item works today, how it was checked, or what is missing |
+| `note` | How the item works today, how it was checked, what is missing, or its page in [specs](../specs/README.md) |
 
 An item **counts as done** only when `scope` is `In`, `status` is `Done`
 and `review` is `-`. When you finish an item, set `status` to `Done` and

@@ -46,7 +46,8 @@ reads once and understands, and that is still true a month later.
 | Pull request | What it does, the rows it covers, how it was tested, what it left undone and where it went. |
 | HISTORY line | `Added:`, `Changed:`, `Fixed:` or `Removed:`, one change in plain words for a visitor, with the pull request. |
 | Project log | A dated entry: what was done, each decision with its reason, what followed, what was left undone. |
-| Report to the owner | The outcome first; then what it depends on; then what was left undone, naming each item and the phase it moved to; then, at most once, a suggested next step. In {{OWNER_LANGUAGE}}. |
+| Specification | The goal in the owner's words, numbered acceptance criteria a test can check, what is out, what was assumed, and the questions for the owner. |
+| Report to the owner | The outcome first; then what it depends on; then the decisions assumed; then what was left undone, naming each item and the phase it moved to; then, at most once, a suggested next step. In {{OWNER_LANGUAGE}}. |
 
 ## Words to avoid
 

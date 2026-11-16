@@ -7,7 +7,8 @@ gives every item its phase.
 ## How a phase runs
 
 1. **Start:** list the inventory rows of the phase and, for each, how it
-   will be checked ([verification.md](verification.md)). Order them: what
+   will be checked ([verification.md](verification.md)) and, when no
+   reference defines it, its [specification](specs/README.md). Order them: what
    unblocks other work first, then what the owner asked for first, then
    what carries most risk. Set the phase to `in-progress` in
    [`dashboard/phases.tsv`](dashboard/phases.tsv).

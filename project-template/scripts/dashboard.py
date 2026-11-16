@@ -30,6 +30,8 @@ Every number on the page is read from a file of the repository:
   docs/dashboard/snapshot.tsv   the status of everything at the last record
   docs/dashboard/changes.tsv    what changed status between two records
   docs/backlog/deferred.tsv     what was left undone
+  docs/decisions.md             the decisions assumed by an agent that the
+                                owner has not confirmed yet
 
 The recent pull requests come from GitHub (`gh api search/issues`), or
 from the merges of the git history when `gh` cannot answer. How the numbers
@@ -81,6 +83,8 @@ LABELS = {
         'nothing-next': 'Every phase is done.',
         'backlog': 'Backlog: what was left undone', 'backlog-open': 'Open items',
         'no-backlog': 'Nothing open.', 'item': 'Item', 'reason': 'Reason', 'from-to': 'From, to',
+        'assumed': 'Decisions waiting for the owner', 'decision': 'Decision', 'date': 'Date',
+        'assumed-note': 'Settled by an agent because nothing said otherwise. Each one stands until the owner confirms it or replaces it.',
         'forecast': 'Forecast', 'fc-plan': 'Plan of {date}: {low} to {high}, likely {likely}.',
         'fc-now': 'Today: {low} to {high}, likely {likely}. {left}% of the estimated work is left.',
         'fc-note': 'A forecast, not a commitment: phases done count whole, phases in progress count by their share of items done.',
@@ -115,6 +119,8 @@ LABELS = {
         'nothing-next': 'Todas as fases estão concluídas.',
         'backlog': 'Pendências: o que ficou sem fazer', 'backlog-open': 'Itens abertos',
         'no-backlog': 'Nada aberto.', 'item': 'Item', 'reason': 'Motivo', 'from-to': 'De, para',
+        'assumed': 'Decisões aguardando o dono', 'decision': 'Decisão', 'date': 'Data',
+        'assumed-note': 'Tomadas por um agente porque nada dizia o contrário. Cada uma vale até o dono confirmar ou substituir.',
         'forecast': 'Previsão', 'fc-plan': 'Plano de {date}: de {low} a {high}, provável {likely}.',
         'fc-now': 'Hoje: de {low} a {high}, provável {likely}. Faltam {left}% do trabalho estimado.',
         'fc-note': 'Uma estimativa, não um compromisso: fases concluídas contam inteiras, fases em andamento contam pela parte dos itens prontos.',
@@ -227,6 +233,25 @@ def load_phases(items):
     if stray:
         sys.exit(f'the inventory names phases the roadmap does not have: {stray}')
     return phases
+
+
+def load_decisions():
+    """The rows of the tables of docs/decisions.md: id, date, decision and status."""
+    path = ROOT / 'docs' / 'decisions.md'
+    if not path.exists():
+        return []
+    row_re = re.compile(r'^\| (D-\d{3,}) \| (.+?) \| (.+) \| (.+?) \|$')
+    rows = []
+    for line in path.read_text(encoding='utf-8').splitlines():
+        m = row_re.match(line.strip())
+        if m:
+            rows.append(dict(zip(('id', 'date', 'decision', 'status'), m.groups())))
+    return rows
+
+
+def assumed_decisions():
+    """The decisions an agent settled and the owner has not confirmed or replaced."""
+    return [d for d in load_decisions() if 'assumed' in d['status'].lower()]
 
 
 def load_prs(repo, use_github):
@@ -402,7 +427,8 @@ def sparkline(history):
             f'<span>{esc(history[-1]["date"])}: {values[-1]}</span></div>')
 
 
-def render(cfg, t, items, phases, backlog, prs, prs_source, history, changes, fc, today, commit):
+def render(cfg, t, items, phases, backlog, prs, prs_source, history, changes, fc, today, commit,
+           assumed=()):
     """The content of the page, shared by the website and the hosted fragment."""
     tracks = cfg['tracks']
     scope = [i for i in items if i['state'] in STATES]
@@ -529,6 +555,16 @@ def render(cfg, t, items, phases, backlog, prs, prs_source, history, changes, fc
     else:
         w(f'<p class="dim">{t["no-backlog"]}</p>')
     w('</section>')
+
+    # Shown only when there is something for the owner to confirm.
+    if assumed:
+        w(f'<section class="card"><h2>{t["assumed"]} ({len(assumed)})</h2>'
+          f'<p class="dim small">{t["assumed-note"]}</p><div class="scroll"><table><thead><tr>'
+          f'<th>{t["id"]}</th><th>{t["date"]}</th><th>{t["decision"]}</th></tr></thead><tbody>')
+        for dec in assumed:
+            w(f'<tr><td class="id">{esc(dec["id"])}</td><td class="dim">{esc(dec["date"])}</td>'
+              f'<td class="wide">{esc(dec["decision"])}</td></tr>')
+        w('</tbody></table></div></section>')
 
     d = t.day
     w(f'<section class="card"><h2>{t["forecast"]}</h2>'
@@ -712,7 +748,8 @@ def main():
     # The page always shows today as the last point, recorded or not.
     history = [r for r in read_tsv(HERE / 'history.tsv') if r['date'] < row['date']] + [row]
 
-    content = render(cfg, t, items, phases, backlog, prs, prs_source, history, changes, fc, today, commit)
+    content = render(cfg, t, items, phases, backlog, prs, prs_source, history, changes, fc, today, commit,
+                     assumed_decisions())
     head = f'<title>{esc(cfg["title"])}</title>\n<style>{CSS}</style>'
     if args.out:
         path = pathlib.Path(args.out)

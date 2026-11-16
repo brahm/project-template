@@ -26,6 +26,15 @@ python3 scripts/check-backlog.py
 step 'Dashboard sources'
 python3 scripts/dashboard.py --check
 
+step 'Pages: links, ids and the decision log'
+python3 scripts/check-docs.py
+
+# Fails while the dashboard was not recorded, or the change has no line in
+# HISTORY.md and no entry in the project log. Run this script once the
+# records are written.
+step 'Records of the set of tasks'
+python3 scripts/check-records.py
+
 if command -v reuse >/dev/null; then
     step 'REUSE compliance'
     reuse lint

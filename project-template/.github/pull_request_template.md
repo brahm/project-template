@@ -4,7 +4,11 @@
 
 ## Inventory rows and decisions
 
-<!-- The rows of docs/inventory this covers (F-001, F-002) and the decisions it follows (D-003). -->
+<!-- The rows of docs/inventory this covers (F-001, F-002), their pages in docs/specs, and the decisions it follows (D-003). -->
+
+## Decisions assumed
+
+<!-- What nobody specified and was settled to keep working, each with its id (D-014, assumed), for the owner to confirm or replace. Write "None" if none. -->
 
 ## How it was tested
 
@@ -21,4 +25,5 @@
 - [ ] `python3 scripts/dashboard.py --record` run and its files committed
 - [ ] `docs/project-log.md` entry (what, why, consequences)
 - [ ] `HISTORY.md` line(s)
-- [ ] `docs/decisions.md`, if the owner took a decision
+- [ ] `docs/decisions.md`, if a decision was taken or assumed
+- [ ] `docs/lessons.md`, if the owner had to correct something

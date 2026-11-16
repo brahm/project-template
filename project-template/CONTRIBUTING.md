@@ -19,16 +19,23 @@ While you work, run the tests of what you changed; run
 1. **A row to point to.** Work belongs to a row of the
    [inventory](docs/inventory/README.md). Name the rows in the pull request
    and in the tests.
-2. **Tests.** Engine code has unit tests; behaviour that a reference defines
+2. **Its behaviour written down.** What no reference defines has
+   acceptance criteria in a page of [docs/specs](docs/specs/README.md),
+   written before the code.
+3. **Tests.** Engine code has unit tests; behaviour that a reference defines
    is compared with a reference case ([docs/verification.md](docs/verification.md));
-   the interface is tested the way the docs describe.
-3. **The architecture kept.** See [docs/architecture.md](docs/architecture.md).
-4. **Extensions documented.** Anything that extends a standard (a format,
+   each acceptance criterion has a test that cites it; the interface is
+   tested the way the docs describe.
+4. **The architecture and the standards kept.** See
+   [docs/architecture.md](docs/architecture.md) and
+   [docs/engineering.md](docs/engineering.md), which also has the list
+   for reviewing a change before it is sent.
+5. **Extensions documented.** Anything that extends a standard (a format,
    a protocol, a component library) is documented in the same change.
-5. **Nothing dropped silently.** What you meant to do and did not gets a
+6. **Nothing dropped silently.** What you meant to do and did not gets a
    row in [docs/backlog/deferred.tsv](docs/backlog/README.md) in the same
    pull request.
-6. **Licenses.** Every file has an SPDX header or is covered by
+7. **Licenses.** Every file has an SPDX header or is covered by
    `REUSE.toml`. Nothing whose licence forbids it enters the repository.
 
 ## Comments
