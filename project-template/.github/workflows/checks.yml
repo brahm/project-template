@@ -1,5 +1,6 @@
-# The checks of the project rules: backlog register, dashboard sources and
-# licences. Add the build, lint and test jobs of your language beside them.
+# The checks of the project rules: backlog register, dashboard sources,
+# pages, records and licences. Add the build, lint and test jobs of your
+# language beside them.
 name: Checks
 
 on:
@@ -16,10 +17,12 @@ concurrency:
 
 jobs:
   rules:
-    name: Backlog, dashboard and licences
+    name: Backlog, dashboard, pages, records and licences
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0    # the records check compares with the base branch
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -27,5 +30,13 @@ jobs:
         run: python3 scripts/check-backlog.py
       - name: Check the dashboard sources
         run: python3 scripts/dashboard.py --check
+      - name: Check the pages (links, ids, decision log)
+        run: python3 scripts/check-docs.py
+      # A pull request must record the dashboard and add its HISTORY line
+      # and its project log entry. Pull requests opened by a bot (dependency
+      # updates) are let through.
+      - name: Check the records of the set of tasks
+        if: github.event_name == 'pull_request' && !endsWith(github.actor, '[bot]')
+        run: python3 scripts/check-records.py --base "origin/${{ github.base_ref }}"
       - name: REUSE compliance
         uses: fsfe/reuse-action@v5

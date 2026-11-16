@@ -1,33 +1,62 @@
 ---
 name: start-project
-description: Use when starting a new project from this template, or when the owner gives a brief for a new project. Turns the brief into goals, first decisions, an inventory, a roadmap with estimates, and the verification plan.
+description: Use at once, without being asked, when a repository was just made from the template (init-project.sh is still at its root, or AGENTS.md still has its "not started" section), or when the owner gives a brief for a new project. Fills the placeholders, turns the brief into goals, decisions, inventory, roadmap and verification, fits the rules, skills and checks to the project's technology, and reports every assumption.
 ---
 
 # Start a project from the brief
 
-1. **Read the brief** and ask the owner only what blocks planning: the
-   target ("done" means what, measured against which reference), what is
-   out of scope, the technology, the languages (repository and owner).
-2. **`docs/goals.md`**: the target and its rules, each rule pointing to a
-   decision.
-3. **`docs/decisions.md`**: one row per decision the brief contains,
-   dated today, status `Current`; assumptions you made are
-   `Current (assumed, not contested)` and listed to the owner.
-4. **`docs/inventory/<track>.tsv`**: every item of the target, from the
-   reference (manuals, specification, the existing product), one row each,
-   with scope (`In`, `Out: reason`, `N/A`), status `Missing`, and a phase.
-   Out-of-scope rows stay. Name the tracks in `docs/dashboard/config.toml`.
-5. **`docs/roadmap.md`**: phases in the table form the dashboard reads,
-   ordered so a common base comes first, each with its row count and an
-   estimate in days; the total with a low, likely and high range. Copy
-   the range to `docs/dashboard/forecast.tsv` and list the phases in
-   `docs/dashboard/phases.tsv`.
-6. **`docs/verification.md`**: the references, where each runs, and how
-   parity documents are made.
-7. **`docs/architecture.md`**: the parts and their boundaries, as
-   checkable sentences.
-8. **Project log**: the first timeline entry and the reasons of the first
-   decisions; **HISTORY.md**: the first lines.
-9. Run `python3 scripts/check-backlog.py` and
-   `python3 scripts/dashboard.py --record`, then report with
-   `report-to-owner`, listing every assumption.
+The owner only says what they want to build. The rest is yours, in one
+go, without waiting to be told each step. Read the pages you fill; the
+scripts and the other skills need no reading now.
+
+1. **Read the brief and the owner's defaults** (the section "Defaults for
+   new projects" of your user instructions, when there is one). Work out
+   the name, a one-line summary, the owner, the languages, the time zone,
+   the licence, the technology, the target and what is out of scope.
+2. **Ask once, only what blocks planning**, in one message, each question
+   with the answer you would assume: what "done" means and against which
+   reference, the scope, the technology, the licence. Everything else you
+   settle yourself in step 6. If the owner told you to decide, or cannot
+   answer now, go on with your assumptions.
+3. **Fill the placeholders.** If `init-project.sh` is at the root, run it
+   with every value as an option so that it asks nothing
+   (`./init-project.sh --help` lists them; it deletes itself).
+4. **`docs/goals.md`**: the target and its rules, each rule pointing to a
+   decision. **`docs/decisions.md`**: one row per decision the brief
+   contains, dated today, status `Current`.
+5. **The plan.** `docs/inventory/<track>.tsv`: every item of the target,
+   from the reference (manuals, specification, the existing product) or
+   from the brief, one row each, with scope (`In`, `Out: reason`, `N/A`),
+   status `Missing` and a phase; out-of-scope rows stay. Name the tracks
+   in `docs/dashboard/config.toml`. `docs/roadmap.md`: phases in the table
+   form the dashboard reads, a common base first, each with its row count
+   and an estimate in days, and the total as a low, likely and high
+   range; copy the range to `docs/dashboard/forecast.tsv` and list the
+   phases in `docs/dashboard/phases.tsv`. `docs/verification.md`: the
+   references, where each runs, how parity documents are made.
+   `docs/architecture.md`: the parts and their boundaries, as checkable
+   sentences.
+6. **Settle what the brief left out.** Go through `docs/engineering.md`
+   and the list "What is usually left out" of `docs/specs/README.md` for
+   the project as a whole. Delete the sections that do not apply, and
+   fill "The technology of this project". Each choice the owner did not
+   make is a decision `Current (assumed, not contested)` with its reason.
+7. **Fit the checks.** Put the format, lint, test and documentation
+   commands of the technology in `scripts/check-all.sh` and
+   `.github/workflows/checks.yml`, the build and test commands in
+   `CONTRIBUTING.md`, and the technology's entries in `.gitignore`. They
+   must pass on the empty project.
+8. **Fit the skills**, as `docs/kit.md` says. The kit's skills are
+   written for any technology: do not read them all looking for changes.
+   Add a skill for a procedure this project will repeat (running the
+   application, making a reference case, releasing), and an outside
+   skill only when the technology clearly needs it.
+9. **Remove the template's marks**: the example rows of the inventory, of
+   the backlog and of `docs/lessons.md`, and the section between the
+   `kit:not-started` lines of `AGENTS.md`.
+10. **First records**: the first timeline entry of the project log with
+    the reasons of the first decisions, and the first lines of
+    `HISTORY.md`. Run `python3 scripts/dashboard.py --record` and
+    `scripts/check-all.sh`, and commit.
+11. **Report** with `report-to-owner`: the plan in a few lines, every
+    assumption with its decision id, and the questions still open.

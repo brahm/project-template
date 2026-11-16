@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Fills the placeholders of this template and sets up the files each coding
 # agent reads. Run it once, at the root of the new project, then delete it
-# (it deletes itself and TEMPLATE.md unless --keep is given).
+# (it deletes itself and TEMPLATE.md unless --keep is given). A coding
+# agent runs it by itself when it finds it here (the start-project skill),
+# giving every value as an option.
 #
 # Usage:
 #   ./init-project.sh --name "Acme" --summary "a tool that does X" \
@@ -11,8 +13,10 @@
 #       [--dashboard-url URL] [--tools all|claude,codex,pi,gemini,copilot,cursor] \
 #       [--copy] [--keep]
 #
-# Values not given are asked for. --copy copies the skills for each agent
-# instead of linking them (use it on Windows). Needs bash, sed and python3.
+# Values not given are asked for at a terminal, and otherwise take their
+# default: the name of the folder, the git user, the `origin` remote.
+# --copy copies the skills for each agent instead of linking them (use it
+# on Windows). Needs bash, sed and python3.
 
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -33,7 +37,7 @@ while [ $# -gt 0 ]; do
         --tools) TOOLS=$2; shift 2 ;;
         --copy) COPY=1; shift ;;
         --keep) KEEP=1; shift ;;
-        -h|--help) sed -n '2,18p' "$0"; exit 0 ;;
+        -h|--help) sed -n '2,19p' "$0"; exit 0 ;;
         *) echo "unknown option: $1" >&2; exit 2 ;;
     esac
 done
@@ -45,10 +49,18 @@ ask() {  # ask VAR "question" default
         printf -v "$1" '%s' "${current:-$3}"
     fi
 }
-ask NAME 'Project name' 'My project'
+# Defaults taken from the place the script runs in, so that an agent or a
+# person in a hurry has less to type.
+DIR_NAME=$(basename "$PWD")
+[ "$DIR_NAME" != project-template ] || DIR_NAME='My project'
+GIT_USER=$(git config user.name 2>/dev/null || true)
+GIT_REPO=$(git remote get-url origin 2>/dev/null \
+    | sed -nE 's#^(https?://|git@|ssh://git@)github\.com[:/]([^/]+/[^/]+)$#\2#p' | sed 's/\.git$//' || true)
+
+ask NAME 'Project name' "$DIR_NAME"
 ask SUMMARY 'One-line summary (completes "NAME is ...")' 'a new project'
-ask OWNER 'Owner (who decides and approves)' 'the owner'
-ask REPO 'GitHub repository owner/name (empty for none)' ''
+ask OWNER 'Owner (who decides and approves)' "${GIT_USER:-the owner}"
+ask REPO 'GitHub repository owner/name (empty for none)' "$GIT_REPO"
 ask REPO_LANG 'Language of the repository' 'English'
 ask OWNER_LANG 'Language of reports and dashboard' "$REPO_LANG"
 ask DASH_LANG 'Dashboard language code (en or pt-BR)' 'en'
@@ -131,9 +143,11 @@ fi
 cat <<MSG
 
 Done. Next:
-  1. Fill in docs/goals.md, docs/decisions.md, docs/architecture.md,
-     docs/verification.md, the inventory and the roadmap (or ask your agent
-     to use the start-project skill with your brief).
+  1. Open your coding agent here and say what you want to build. It plans
+     the project by itself (the start-project skill): goals, decisions,
+     inventory, roadmap, verification, and the rules, skills and checks
+     fitted to your technology. Or fill those pages of docs/ by hand, and
+     then delete the "not started" section of AGENTS.md and the example
+     rows (F-001 to F-007, B-001, L-001).
   2. Check that LICENSES/ has the licence text (reuse download --all).
-  3. Delete the example rows (F-001 to F-007, B-001) once real ones exist.
 MSG

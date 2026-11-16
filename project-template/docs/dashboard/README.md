@@ -44,6 +44,7 @@ three are kept up to date together.
 | [`phases.tsv`](phases.tsv) | The status of each phase (`not-started`, `in-progress`, `done`), the days it started and ended, and its track (`-` for none) | When a phase starts or ends |
 | [`forecast.tsv`](forecast.tsv) | The estimate of the plan: its day and the least, likely and most days | When the roadmap corrects its estimate |
 | [`../backlog/deferred.tsv`](../backlog/README.md) | What was left undone, and the phase it moved to | By the rules of the backlog |
+| [`../decisions.md`](../decisions.md) | The decisions an agent assumed and the owner has not confirmed, shown as "Decisions waiting for the owner" while there are any | When a decision is assumed, confirmed or replaced |
 | [`history.tsv`](history.tsv), [`snapshot.tsv`](snapshot.tsv), [`changes.tsv`](changes.tsv) | One row per recorded day; the status of everything at the last record; what changed between records | Only through `--record` |
 
 The pull requests come from GitHub (`gh api search/issues`) when `repo` is

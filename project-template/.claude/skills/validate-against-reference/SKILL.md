@@ -27,3 +27,7 @@ with its reference and the result is recorded.
    `review` `-` only if it matched; otherwise `Partial` with what differs
    in `note`, or a reason in `review`.
 6. **Report** what was checked, against what, and what did not match.
+
+An item with a page in `docs/specs` is checked the same way against its
+acceptance criteria: each one has a test that passes, or the item is not
+done.

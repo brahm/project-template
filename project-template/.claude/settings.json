@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 scripts/status.py *)",
+      "Bash(python3 scripts/dashboard.py *)",
+      "Bash(python3 scripts/check-backlog.py *)",
+      "Bash(python3 scripts/check-docs.py *)",
+      "Bash(python3 scripts/check-records.py *)",
+      "Bash(scripts/check-all.sh *)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/status.py\" 2>&1 || true"
+          }
+        ]
+      }
+    ]
+  }
+}
