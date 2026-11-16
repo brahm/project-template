@@ -1,31 +1,24 @@
-<!-- Write the description by docs/writing-style.md: the result first. -->
+## What this changes
 
-## What this does
+<!-- The result first, in one or two sentences, in plain words. -->
 
-<!-- One or two sentences, in plain words. -->
+## Inventory rows and decisions
 
-## Inventory rows
-
-<!-- The ids this change covers (F-001, F-002), and their new status.
-     Work without a row gets one in this pull request. -->
+<!-- The rows of docs/inventory this covers (F-001, F-002) and the decisions it follows (D-003). -->
 
 ## How it was tested
 
-<!-- The tests added or changed, the reference each behaviour was checked
-     against (docs/verification.md), and the result of scripts/check-all.sh.
-     Never claim a check you did not run. -->
+<!-- The tests added or run, scripts/check-all.sh, and the check against the reference (docs/verification.md). Say what was not run. -->
 
 ## Left undone
 
-<!-- One line per item: "Left undone: <item> (B-nnn), moved to phase
-     <phase>, because <reason>." Each has a row in
-     docs/backlog/deferred.tsv. Write "Nothing was left undone" when that
-     is true. -->
+<!-- Each item left undone or moved to a later phase, with its backlog row (B-nnn) and the phase it moved to. Write "Nothing" if nothing. -->
 
-## Records
+## Records updated
 
-- [ ] Inventory rows and `docs/dashboard/phases.tsv` are up to date
-- [ ] `python3 scripts/dashboard.py --record` was run and its files are committed
-- [ ] `docs/project-log.md` has the entry of this set of tasks
-- [ ] `HISTORY.md` has one line per change
-- [ ] Decisions taken by the owner are in `docs/decisions.md`
+- [ ] Inventory rows and `docs/dashboard/phases.tsv`
+- [ ] `docs/backlog/deferred.tsv` (and `scripts/check-backlog.py` passes)
+- [ ] `python3 scripts/dashboard.py --record` run and its files committed
+- [ ] `docs/project-log.md` entry (what, why, consequences)
+- [ ] `HISTORY.md` line(s)
+- [ ] `docs/decisions.md`, if the owner took a decision

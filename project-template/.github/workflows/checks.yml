@@ -1,0 +1,31 @@
+# The checks of the project rules: backlog register, dashboard sources and
+# licences. Add the build, lint and test jobs of your language beside them.
+name: Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rules:
+    name: Backlog, dashboard and licences
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Check the backlog register
+        run: python3 scripts/check-backlog.py
+      - name: Check the dashboard sources
+        run: python3 scripts/dashboard.py --check
+      - name: REUSE compliance
+        uses: fsfe/reuse-action@v5
