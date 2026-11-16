@@ -105,6 +105,7 @@ if want gemini; then
     printf '{\n  "context": { "fileName": ["AGENTS.md"] }\n}\n' > .gemini/settings.json
 fi
 if want copilot; then
+    mkdir -p .github
     printf '# Copilot\n\nThe rules of this project are in [AGENTS.md](../AGENTS.md). Read it first and follow it.\n' \
         > .github/copilot-instructions.md
 fi
