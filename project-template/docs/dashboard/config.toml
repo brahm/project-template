@@ -1,0 +1,13 @@
+# Settings of scripts/dashboard.py. Everything else on the page is read
+# from the repository.
+
+title = "{{PROJECT_NAME}} dashboard"
+target = "the target of docs/goals.md"      # shown as "N of M items of <target>"
+repo = "{{REPO}}"                            # owner/name on GitHub, or "" for none
+site = ""                                    # link in the footer, or ""
+timezone = "{{TIMEZONE}}"
+language = "{{DASHBOARD_LANG}}"              # "en" or "pt-BR"; add others in LABELS
+
+# One file of docs/inventory per track: file stem = label on the page.
+[tracks]
+main = "Main"

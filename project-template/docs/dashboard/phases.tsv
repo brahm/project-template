@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: {{YEAR}} {{PROJECT_NAME}} contributors
+# SPDX-License-Identifier: {{LICENSE}}
+phase	status	started	ended	track
+P0	in-progress	{{TODAY}}	-	-
+P1	not-started	-	-	-
+P2	not-started	-	-	-

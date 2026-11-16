@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: {{YEAR}} {{PROJECT_NAME}} contributors
+# SPDX-License-Identifier: {{LICENSE}}
+key	value	source
+baseline_date	{{TODAY}}	docs/roadmap.md, the day the plan was written
+days_low	10	docs/roadmap.md
+days_likely	12	docs/roadmap.md
+days_high	18	docs/roadmap.md

@@ -1,0 +1,4 @@
+# SPDX-FileCopyrightText: {{YEAR}} {{PROJECT_NAME}} contributors
+# SPDX-License-Identifier: {{LICENSE}}
+id	date	item	rows	task_set	reason	from_phase	to_phase	status	closed_by
+B-001	{{TODAY}}	Example: write the reference case of F-002	F-002	Planning	Example row; delete it once the project has a real one	P0	P1	open	-

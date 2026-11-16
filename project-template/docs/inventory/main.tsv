@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: {{YEAR}} {{PROJECT_NAME}} contributors
+# SPDX-License-Identifier: {{LICENSE}}
+id	area	item	scope	status	review	phase	note
+F-001	Setup	The project builds and its checks run in CI	In	Done	-	P0	scripts/check-all.sh
+F-002	Core	Example item of the first release	In	Partial	-	P1	What is missing
+F-003	Core	Another item of the first release	In	Missing	-	P1	-
+F-004	Core	An item done but to be checked again	In	Done	The target changed	P1	-
+F-005	Extras	An item of the second release	In	Started	-	P2	The base exists
+F-006	Extras	A second item of the second release	In	Missing	-	P2	-
+F-007	Extras	A feature that needs a paid service	Out: needs a paid service	Missing	-	-	Kept on record (D-002)

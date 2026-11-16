@@ -1,0 +1,10 @@
+version = 1
+
+# Default for every file without an SPDX header of its own. Change the
+# licence to the project's. The last matching table wins, so put the
+# exceptions (libraries under another licence, fonts, third-party assets)
+# below this one, each with its own copyright and licence.
+[[annotations]]
+path = "**"
+SPDX-FileCopyrightText = "{{YEAR}} {{PROJECT_NAME}} contributors"
+SPDX-License-Identifier = "{{LICENSE}}"
