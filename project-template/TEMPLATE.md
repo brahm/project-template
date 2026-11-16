@@ -15,4 +15,5 @@ generated from the repository, and CI that checks them.
 3. Ask your agent to run the `start-project` skill with your brief, or
    fill the pages of `docs/` by hand.
 
-Every placeholder looks like `{{NAME}}`; `grep -rn '{{' .` lists any left.
+Every placeholder looks like `{{NAME}}`; `grep -rnE '\{\{[A-Z_]+\}\}' .` lists
+any left (the `${{ ... }}` of the GitHub workflows are not placeholders).
