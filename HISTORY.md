@@ -5,6 +5,12 @@ from the template reads this file to learn what is newer than its own kit
 version (`docs/kit.md` in the project, and the `update-from-template`
 skill).
 
+## Changes since 1.1.0 (unreleased)
+
+* Changed: `README.md` and `LEIA-ME.md` have a quick start, what is
+  needed to install, how to make a template repository on GitHub, and a
+  "Use" section on working with the agent day to day.
+
 ## Changes in 1.1.0 (2026-11-16)
 
 * Added: A project starts by itself. `AGENTS.md` carries a "not started"

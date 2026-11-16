@@ -8,6 +8,19 @@ and other agents that read `AGENTS.md`.
 
 (Português: [LEIA-ME.md](LEIA-ME.md).)
 
+## Quick start
+
+```sh
+git clone https://github.com/brahm/project-template agent-kit
+agent-kit/user-level/install-user.sh          # once per computer: rules, skills, your defaults
+cp -R agent-kit/project-template my-project   # once per project
+cd my-project && git init
+claude                                         # or codex, pi, gemini...
+```
+
+Then tell the agent what you want to build, in your own words. It does the
+rest and reports what it assumed.
+
 ## What is in it
 
 | Folder | What it is | For |
@@ -105,22 +118,71 @@ only what the project's technology needs.
 
 ## Install
 
-### A new project (any agent)
+### What you need
+
+- `bash`, `git` and Python 3.11 or later. The scripts use nothing else.
+- Optional: [`reuse`](https://reuse.software) for the licence check
+  (`pipx install reuse`), and the GitHub CLI `gh` for the list of pull
+  requests on the dashboard. Without them, those two steps are skipped.
+
+### 1. Get the kit
 
 ```sh
-cp -R project-template my-project      # or push it to GitHub and mark it "Template repository"
-cd my-project && git init
+git clone https://github.com/brahm/project-template agent-kit
 ```
 
-Then open your agent in the folder and say what you want to build. It
-sees that the project has not been started, runs `init-project.sh` with
-what it knows (your brief, your defaults, the git user and remote), asks
-only what blocks the plan, writes the plan, fits the kit to your
-technology and reports what it assumed. To fill the placeholders
-yourself first, run `./init-project.sh`, which asks for the name, the
-owner, the languages, the time zone and the licence.
+To start projects with GitHub's "Use this template" button instead of
+copying a folder, make a repository of its own from the template folder,
+once:
 
-`init-project.sh` fills every `{{PLACEHOLDER}}` and sets up each agent
+```sh
+cp -R agent-kit/project-template my-template && cd my-template
+git init -b main && git add -A && git commit -m "Agent project template"
+gh repo create my-template --private --source . --push
+```
+
+Then mark it "Template repository" in its settings on GitHub. Do not use
+"Use this template" on the kit repository itself: that copies the whole
+kit, not the project template.
+
+### 2. Install for your user (once per computer)
+
+```sh
+agent-kit/user-level/install-user.sh          # --dry-run to see first; --tools claude,codex to choose
+```
+
+It appends the working rules between marker lines to `~/.claude/CLAUDE.md`,
+`~/.codex/AGENTS.md` and `~/.pi/agent/AGENTS.md`, copies the skills to
+`~/.claude/skills`, `~/.codex/skills` and `~/.pi/agent/skills`, and asks
+once for your defaults for new projects (your name, the languages, the
+time zone, the licence, the GitHub account), which it writes below the
+rules so that no project asks for them again. Edit them there whenever you
+like. It never overwrites a file of yours: a second run replaces only the
+rules block and keeps your defaults and any skill you already have. After
+the kit changes, `--replace-skills` takes the new version of its skills.
+All options: `install-user.sh --help`.
+
+This step is optional. It gives the rules and the skills to projects that
+were not made from the template, and saves the agent a question or two in
+those that were.
+
+### 3. Start a project
+
+```sh
+cp -R agent-kit/project-template my-project   # or "Use this template" on your template repository
+cd my-project && git init                     # skip git init after "Use this template"
+```
+
+Open your agent in the folder and say what you want to build. It sees that
+the project has not been started, runs `init-project.sh` with what it
+knows (your brief, your defaults, the git user and remote), asks only what
+blocks the plan, writes the goals, the decisions, the inventory and the
+roadmap, fits the checks and the skills to your technology, and reports
+what it assumed. You never name a skill.
+
+To fill the placeholders by hand first, run `./init-project.sh`: it asks
+for the name, the owner, the languages, the time zone and the licence
+(`./init-project.sh --help` lists the options). It also sets up each agent
 (`--tools all` by default, or a list such as `--tools claude,codex`):
 
 | Agent | What it reads | What the script does |
@@ -133,55 +195,57 @@ owner, the languages, the time zone and the licence.
 | Cursor | `AGENTS.md`, `.cursor/rules/` | Writes a rule pointing to it |
 | Others (Aider, Zed, Amp, Jules, ...) | Usually `AGENTS.md`; otherwise point them to it (Aider: `--read AGENTS.md`) | Nothing needed |
 
-Use `--copy` instead of links on Windows. The skills are plain Markdown,
-and `AGENTS.md` gives their path and their moment, so an agent without
-skill support follows them too. Only Claude Code runs the state report by
-itself; the other agents run `python3 scripts/status.py` first, as rule 1
-says.
+On Windows, use `--copy` instead of links. Claude Code asks once whether
+you trust the folder; accept it, or the project's allowed scripts keep
+asking for permission. Only Claude Code runs the state report by itself;
+the other agents run `python3 scripts/status.py` first, as rule 1 of
+`AGENTS.md` says.
 
-### For your user, in every project
+### Claude desktop and ChatGPT desktop (no repository)
 
-```sh
-user-level/install-user.sh               # or --tools claude,codex,pi ; --dry-run to see first
-```
-
-It appends the working rules between marker lines to `~/.claude/CLAUDE.md`,
-`~/.codex/AGENTS.md` and `~/.pi/agent/AGENTS.md` (a second run replaces the
-block), and copies the skills to `~/.claude/skills`, `~/.codex/skills` and
-`~/.pi/agent/skills`, leaving any skill you already have
-(`--replace-skills` takes the kit's new version of them). It also asks
-once for your defaults for new projects (your name, the languages, the
-time zone, the licence, the GitHub account) and writes them below the
-rules, so that an agent starting a project does not ask again; edit them
-there whenever you like.
-
-### Claude desktop
-
-1. Settings > Capabilities > Skills: upload each zip of `desktop/claude-skills/`.
+1. Claude: Settings > Capabilities > Skills, and upload each zip of
+   `desktop/claude-skills/`. ChatGPT has no skill upload in Projects: ask
+   it to follow a skill by name and attach that `SKILL.md`.
 2. In a Project, paste `desktop/project-instructions.md` (below its line)
-   into the instructions, and add the `docs` pages you use as files.
-3. Claude desktop's Claude Code tab works on a repository: use the
-   template as above.
+   into the instructions, and add as files the `docs` pages you use.
+3. The Claude Code tab of Claude desktop, and Codex, work on a repository:
+   use the template as above.
 
-### ChatGPT desktop
+## Use
 
-1. In a Project, paste `desktop/project-instructions.md` into the
-   instructions and add the `docs` pages as files. ChatGPT has no skill
-   upload in Projects; ask it to follow a skill by name and attach that
-   `SKILL.md`.
-2. Codex (in ChatGPT or the CLI) reads `AGENTS.md` from the repository
-   directly.
+You talk to the agent as you would to a colleague. The kit makes sure the
+things one person tends to forget are not.
 
-## The dashboard
+| You | The agent |
+| --- | --- |
+| Say what you want, in your words | Finds it in the plan, prioritizes, writes acceptance criteria where nothing defines the behaviour, builds, tests, and keeps the records |
+| Read its report | Leads with the result, then what it checked, then the decisions it assumed, then what it left undone and to which phase it moved |
+| Confirm or replace an assumed decision ("D-007 is fine", "use Postgres, not SQLite") | Records it, and changes the plan, the specification and the code that depended on it |
+| Correct it | Fixes the mistake, records the lesson in `docs/lessons.md`, and adds the check or the rule that prevents it |
+| Say a phase is done, or let it finish | Works the phase's backlog to zero, corrects the forecast, and asks about the decisions still assumed |
+| Say the template changed | Brings the new rules, skills and checks into the project without losing what was fitted to it |
 
-`scripts/dashboard.py` builds one HTML page from the repository: items done
-per track and phase, what was just done, what comes next, the backlog,
-the decisions waiting for the owner, the forecast, the history and a
-filterable list. Python 3.11, no
-dependencies; English or Brazilian Portuguese (`docs/dashboard/config.toml`).
-`--out` writes a page, `--artifact` a fragment for a hosted page such as a
-claude.ai Artifact, `--record` stores the day's numbers and changes.
-`.github/workflows/dashboard.yml` publishes it with GitHub Pages.
+What you will look at, besides the reports:
+
+- **The dashboard**: `python3 scripts/dashboard.py --out dashboard.html`
+  and open the file. Items done per track and phase, what was just done,
+  what comes next, the backlog, the decisions waiting for you, the
+  forecast, the history and a filterable list, in English or Brazilian
+  Portuguese (`docs/dashboard/config.toml`). `.github/workflows/dashboard.yml`
+  publishes it with GitHub Pages; `--artifact` writes a fragment for a
+  hosted page such as a claude.ai Artifact.
+- **The state in a few lines**: `python3 scripts/status.py`, the same
+  summary the agent reads when a session starts.
+- **Every check**: `scripts/check-all.sh`, the same as the CI. It fails on
+  failing tests, broken links, ids that do not exist, a dashboard not
+  recorded, a change without its HISTORY line or project log entry, and
+  files without a licence.
+- **The records**: `docs/decisions.md`, `docs/backlog/deferred.tsv`,
+  `docs/project-log.md`, `docs/lessons.md` and `HISTORY.md`.
+
+To keep a project in step with the kit, pull the kit (`git -C agent-kit
+pull`) and tell the agent in the project that the template changed. For
+your user files, run `install-user.sh --replace-skills` again.
 
 ## Changing the kit
 

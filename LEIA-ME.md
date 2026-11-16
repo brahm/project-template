@@ -10,6 +10,19 @@ O conteúdo do modelo está em inglês. Os relatórios ao dono e o painel
 saem no idioma que você escolher ao iniciar o projeto (o painel tem inglês
 e português do Brasil).
 
+## Começo rápido
+
+```sh
+git clone https://github.com/brahm/project-template agent-kit
+agent-kit/user-level/install-user.sh          # uma vez por computador: regras, skills, seus padrões
+cp -R agent-kit/project-template meu-projeto  # uma vez por projeto
+cd meu-projeto && git init
+claude                                         # ou codex, pi, gemini...
+```
+
+Depois diga ao agente, com as suas palavras, o que você quer construir.
+Ele faz o resto e relata o que assumiu.
+
 ## O que vem no pacote
 
 | Pasta | O que é | Para quê |
@@ -108,22 +121,70 @@ só o que a tecnologia do projeto pede.
 
 ## Instalação
 
-### Projeto novo (qualquer agente)
+### O que é preciso
+
+- `bash`, `git` e Python 3.11 ou mais novo. Os scripts não usam mais nada.
+- Opcional: o [`reuse`](https://reuse.software) para a verificação de
+  licenças (`pipx install reuse`) e o `gh`, a linha de comando do GitHub,
+  para a lista de pull requests no painel. Sem eles, esses dois passos
+  são pulados.
+
+### 1. Baixar o kit
 
 ```sh
-cp -R project-template meu-projeto     # ou suba no GitHub e marque como "Template repository"
-cd meu-projeto && git init
+git clone https://github.com/brahm/project-template agent-kit
 ```
 
-Depois abra o agente na pasta e diga o que você quer construir. Ele vê
-que o projeto não foi iniciado, roda o `init-project.sh` com o que já
-sabe (o seu briefing, os seus padrões, o usuário e o remoto do git),
-pergunta só o que trava o plano, escreve o plano, ajusta o kit à sua
-tecnologia e relata o que assumiu. Se preferir preencher os marcadores
-você mesmo antes, rode `./init-project.sh`, que pergunta nome, dono,
-idiomas, fuso horário e licença.
+Para começar projetos pelo botão "Use this template" do GitHub em vez de
+copiar uma pasta, crie uma vez um repositório só com a pasta do modelo:
 
-O `init-project.sh` preenche todos os `{{MARCADORES}}` e prepara cada
+```sh
+cp -R agent-kit/project-template meu-modelo && cd meu-modelo
+git init -b main && git add -A && git commit -m "Agent project template"
+gh repo create meu-modelo --private --source . --push
+```
+
+Depois marque "Template repository" nas configurações dele no GitHub. Não
+use "Use this template" no repositório do kit: isso copia o kit inteiro, e
+não o modelo de projeto.
+
+### 2. Instalar para o seu usuário (uma vez por computador)
+
+```sh
+agent-kit/user-level/install-user.sh          # --dry-run para ver antes; --tools claude,codex para escolher
+```
+
+Ele acrescenta as regras de trabalho entre duas linhas marcadoras em
+`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` e `~/.pi/agent/AGENTS.md`, copia
+as skills para `~/.claude/skills`, `~/.codex/skills` e `~/.pi/agent/skills`,
+e pergunta uma única vez os seus padrões para projetos novos (seu nome, os
+idiomas, o fuso horário, a licença, a conta do GitHub), que grava abaixo
+das regras para que nenhum projeto pergunte de novo. Edite ali quando
+quiser. Ele nunca sobrescreve um arquivo seu: rodar de novo substitui só o
+bloco das regras e mantém os seus padrões e as skills que você já tem.
+Quando o kit mudar, `--replace-skills` troca as skills dele pela versão
+nova. Todas as opções: `install-user.sh --help`.
+
+Este passo é opcional. Ele leva as regras e as skills a projetos que não
+vieram do modelo, e poupa ao agente uma ou duas perguntas nos que vieram.
+
+### 3. Começar um projeto
+
+```sh
+cp -R agent-kit/project-template meu-projeto  # ou "Use this template" no seu repositório de modelo
+cd meu-projeto && git init                    # sem git init depois de "Use this template"
+```
+
+Abra o agente na pasta e diga o que você quer construir. Ele vê que o
+projeto não foi iniciado, roda o `init-project.sh` com o que já sabe (o seu
+briefing, os seus padrões, o usuário e o remoto do git), pergunta só o que
+trava o plano, escreve os objetivos, as decisões, o inventário e o
+roteiro, ajusta as verificações e as skills à sua tecnologia e relata o
+que assumiu. Você nunca precisa citar uma skill.
+
+Para preencher os marcadores à mão antes, rode `./init-project.sh`: ele
+pergunta nome, dono, idiomas, fuso horário e licença
+(`./init-project.sh --help` lista as opções). Ele também prepara cada
 agente (`--tools all` por padrão, ou uma lista como `--tools claude,codex`):
 
 | Agente | O que ele lê | O que o script faz |
@@ -136,53 +197,57 @@ agente (`--tools all` por padrão, ou uma lista como `--tools claude,codex`):
 | Cursor | `AGENTS.md` e `.cursor/rules/` | Cria uma regra apontando para ele |
 | Outros (Aider, Zed, Amp, Jules...) | Em geral `AGENTS.md`; se não, aponte para ele (Aider: `--read AGENTS.md`) | Nada |
 
-No Windows, use `--copy` em vez de links. As skills são Markdown simples,
-e o `AGENTS.md` dá o caminho e o momento de cada uma, então um agente sem
-suporte a skills também as segue. Só o Claude Code roda o relatório de
-estado sozinho; os outros agentes rodam `python3 scripts/status.py`
-primeiro, como diz a regra 1.
+No Windows, use `--copy` em vez de links. O Claude Code pergunta uma vez
+se você confia na pasta; aceite, senão os scripts liberados do projeto
+continuam pedindo permissão. Só o Claude Code roda o relatório de estado
+sozinho; os outros agentes rodam `python3 scripts/status.py` primeiro,
+como diz a regra 1 do `AGENTS.md`.
 
-### Para o seu usuário, em todos os projetos
+### Claude desktop e ChatGPT desktop (sem repositório)
 
-```sh
-user-level/install-user.sh             # ou --tools claude,codex,pi ; --dry-run para ver antes
-```
-
-Ele acrescenta as regras de trabalho entre duas linhas marcadoras em
-`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` e `~/.pi/agent/AGENTS.md` (rodar
-de novo substitui o bloco) e copia as skills para `~/.claude/skills`,
-`~/.codex/skills` e `~/.pi/agent/skills`, sem mexer nas que você já tem
-(`--replace-skills` troca as do kit pela versão nova). Também pergunta,
-uma única vez, os seus padrões para projetos novos (seu nome, os idiomas,
-o fuso horário, a licença, a conta do GitHub) e os grava abaixo das
-regras, para que o agente não pergunte de novo a cada projeto; edite ali
-quando quiser.
-
-### Claude desktop
-
-1. Configurações > Capacidades > Skills: envie cada .zip de `desktop/claude-skills/`.
+1. Claude: Configurações > Capacidades > Skills, e envie cada .zip de
+   `desktop/claude-skills/`. Os Projetos do ChatGPT não aceitam skills:
+   peça para seguir uma skill pelo nome e anexe o `SKILL.md` dela.
 2. Num Projeto, cole `desktop/project-instructions.md` (abaixo da linha)
    nas instruções e adicione como arquivos as páginas de `docs` que usar.
-3. A aba Claude Code do app trabalha num repositório: use o modelo como
-   acima.
+3. A aba Claude Code do Claude desktop, e o Codex, trabalham num
+   repositório: use o modelo como acima.
 
-### ChatGPT desktop
+## Uso
 
-1. Num Projeto, cole `desktop/project-instructions.md` nas instruções e
-   adicione as páginas de `docs` como arquivos. Os Projetos do ChatGPT não
-   aceitam skills: peça para seguir uma skill pelo nome e anexe o `SKILL.md`.
-2. O Codex (no ChatGPT ou no terminal) lê o `AGENTS.md` direto do repositório.
+Você conversa com o agente como faria com um colega. O kit garante que o
+que uma pessoa sozinha costuma esquecer não seja esquecido.
 
-## O painel
+| Você | O agente |
+| --- | --- |
+| Diz o que quer, com as suas palavras | Acha no plano, prioriza, escreve critérios de aceitação onde nada define o comportamento, constrói, testa e mantém os registros |
+| Lê o relatório | Começa pelo resultado, depois o que conferiu, as decisões que assumiu, e o que ficou sem fazer e para qual fase foi |
+| Confirma ou troca uma decisão assumida ("a D-007 está ok", "use Postgres, não SQLite") | Registra, e muda o plano, a especificação e o código que dependiam dela |
+| Corrige o agente | Corrige o erro, registra a lição em `docs/lessons.md` e cria a verificação ou a regra que o evita |
+| Diz que uma fase acabou, ou deixa ela terminar | Zera as pendências da fase, corrige a previsão e pergunta sobre as decisões ainda assumidas |
+| Diz que o modelo mudou | Traz as regras, skills e verificações novas para o projeto sem perder o que foi ajustado nele |
 
-`scripts/dashboard.py` monta uma página HTML a partir do repositório: itens
-prontos por frente e por fase, o que acabou de ser feito, o que vem a
-seguir, pendências, decisões aguardando o dono, previsão, histórico e uma
-lista com filtros. Python
-3.11, sem dependências; em inglês ou português (`docs/dashboard/config.toml`).
-`--out` grava uma página, `--artifact` um fragmento para uma página
-hospedada como um Artifact do claude.ai, e `--record` guarda os números e
-as mudanças do dia. `.github/workflows/dashboard.yml` publica no GitHub Pages.
+O que você vai olhar, além dos relatórios:
+
+- **O painel**: `python3 scripts/dashboard.py --out painel.html` e abra o
+  arquivo. Itens prontos por frente e por fase, o que acabou de ser feito,
+  o que vem a seguir, as pendências, as decisões aguardando você, a
+  previsão, o histórico e uma lista com filtros, em inglês ou português
+  (`docs/dashboard/config.toml`). O `.github/workflows/dashboard.yml`
+  publica no GitHub Pages; `--artifact` gera um fragmento para uma página
+  hospedada, como um Artifact do claude.ai.
+- **O estado em poucas linhas**: `python3 scripts/status.py`, o mesmo
+  resumo que o agente lê ao começar uma sessão.
+- **Todas as verificações**: `scripts/check-all.sh`, as mesmas do CI. Falha
+  com teste quebrado, link quebrado, id que não existe, painel sem
+  registro, mudança sem linha no HISTORY ou sem entrada no log do projeto,
+  e arquivo sem licença.
+- **Os registros**: `docs/decisions.md`, `docs/backlog/deferred.tsv`,
+  `docs/project-log.md`, `docs/lessons.md` e `HISTORY.md`.
+
+Para manter um projeto em dia com o kit, atualize o kit (`git -C agent-kit
+pull`) e diga ao agente, no projeto, que o modelo mudou. Para os arquivos
+do seu usuário, rode `install-user.sh --replace-skills` de novo.
 
 ## Alterar o kit
 
