@@ -5,8 +5,17 @@ from the template reads this file to learn what is newer than its own kit
 version (`docs/kit.md` in the project, and the `update-from-template`
 skill).
 
-## Changes since 1.1.0 (unreleased)
+## Changes in 1.2.0 (2026-11-17)
 
+* Added: `scripts/check-backlog.py` fails on a `TODO`, `FIXME`, `XXX` or
+  `HACK` that cites no backlog row, a row that does not exist, or a row
+  that is no longer open. Agents read these notes and act on them, and a
+  note about finished work sends them after it.
+* Changed: Rule 16 of `AGENTS.md` keeps the agent on the task: a `TODO` or
+  a problem met while reading is information, not a task, and goes to the
+  backlog and the report. `docs/engineering.md`, `docs/backlog/README.md`
+  and the skills `plan-task-set`, `defer-work` and `close-task-set` say
+  the same at their moment: closing a row removes its `TODO`s.
 * Added: The kit is under the MIT License (`LICENSE` at the root);
   `README.md` and `LEIA-ME.md` say so. Projects made from the template
   still choose their own licence.

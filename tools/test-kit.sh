@@ -136,6 +136,20 @@ sed -i '$d' docs/roadmap.md
 python3 scripts/check-docs.py
 # A phase with open backlog cannot close.
 must_fail 'closing a phase with open backlog' 'still open' python3 scripts/check-backlog.py --phase P1
+# Notes in the code that would send an agent after work nobody recorded or that is finished.
+echo 'answer = 42  # TODO(B-001) derive it' >notes.py && git add notes.py
+python3 scripts/check-backlog.py >/dev/null
+echo 'size = 0  # FIXME grow it' >>notes.py
+must_fail 'a TODO that cites no backlog row' 'FIXME cites no backlog row' python3 scripts/check-backlog.py
+sed -i '$d' notes.py && echo 'size = 0  # HACK(B-999)' >>notes.py
+must_fail 'a TODO that cites a row not in the register' 'HACK(B-999) cites a row that is not' python3 scripts/check-backlog.py
+sed -i '$d' notes.py
+cp docs/backlog/deferred.tsv "$WORK/deferred.tsv"
+sed -i 's/^\(B-001\t.*\)\topen\t-$/\1\tdone\tPR 9/' docs/backlog/deferred.tsv
+must_fail 'a TODO left after its row closed' 'TODO(B-001) cites a row that is done' python3 scripts/check-backlog.py
+cp "$WORK/deferred.tsv" docs/backlog/deferred.tsv
+git rm -qf notes.py
+python3 scripts/check-backlog.py >/dev/null
 
 step 'Decisions assumed and lessons without a guard reach the owner and the agent'
 sed -i 's/^| D-003 | \(.*\) | Current |$/| D-003 | \1 | Current (assumed, not contested) |/' docs/decisions.md

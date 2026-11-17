@@ -51,10 +51,13 @@ added under [The technology of this project](#the-technology-of-this-project).
   does one thing and fits on a screen.
 - The formatter and the linter decide the style; their warnings are
   fixed, not silenced. New code looks like the code beside it.
-- No dead code, no commented-out code, and no `TODO` without its backlog
-  row: `TODO(B-012)`.
-- A change does what its task says. A clean-up noticed on the way is a
-  separate commit, or a backlog row.
+- No dead code and no commented-out code. A `TODO`, `FIXME`, `XXX` or
+  `HACK` cites its open backlog row, `TODO(B-012)`, and goes away in the
+  change that closes the row. `scripts/check-backlog.py` checks both, so
+  that no agent follows a note about work that is finished.
+- A change does what its task says. A clean-up or a bug noticed on the
+  way is a backlog row and a line in the report, not part of the change,
+  unless the task needs it.
 
 ## Failures
 

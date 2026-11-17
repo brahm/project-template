@@ -116,10 +116,14 @@ was not specified, and to keep the records.
 15. **Third-party material.** Do not copy code, assets, skills or
     definitions whose licence does not allow it. Every file has an SPDX
     header or is covered by `REUSE.toml`.
-16. **Work lean.** Tokens and the owner's attention are part of the cost.
-    Open a page of `docs` only when the task touches it, search the TSV
-    files with `grep` instead of reading them whole, send a long output to
-    a file and read its end, and run independent steps in parallel.
+16. **Work lean, on the task.** Tokens and the owner's attention are part
+    of the cost. Open a page of `docs` only when the task touches it,
+    search the TSV files with `grep` instead of reading them whole, send a
+    long output to a file and read its end, and run independent steps in
+    parallel. A `TODO`, a note or a problem met while reading is
+    information, not a task: check its backlog row before trusting it, and
+    leave what is outside the task to a backlog row and a line in the
+    report.
 
 ## When something is left undone
 

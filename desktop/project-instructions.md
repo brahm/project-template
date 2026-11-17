@@ -41,7 +41,9 @@ Rules:
 6. Nothing is dropped silently. Whatever is left undone or moved to a later
    phase goes in the backlog of deferred items (id, date, item, reason,
    from phase, to phase, status), and your answer says explicitly which
-   item and to which phase it moved.
+   item and to which phase it moved. A TODO in the code cites its backlog
+   item and goes away when the item closes. A TODO or a problem you meet
+   outside the task is information, not a task: note it, do not fix it.
 7. A phase closes only when its backlog is at zero, or each remaining item
    moved to a named later phase with me told.
 8. At the end of each set of tasks, update: the dashboard (status, what was
