@@ -16,7 +16,9 @@ written plan.
    words in `docs/inventory/*.tsv`): its id, scope, status and phase.
    Work without a row gets a new row (next free id, `scope` In, `status`
    Missing, the phase it belongs to). Work that is `Out: ...` is not
-   done: tell the owner and stop that part.
+   done: tell the owner and stop that part. A `TODO` or a note met in
+   the code is not a piece of the task unless the task names it; its row
+   in `docs/backlog/deferred.tsv` says whether it is still open.
 3. **Check the phase.** If a piece belongs to a later phase than the one in
    progress (`docs/dashboard/phases.tsv`), do not do it unless the task
    says so; say that you left it.

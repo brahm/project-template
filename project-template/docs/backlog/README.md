@@ -33,7 +33,15 @@ here, with the reason, and comes back at the end of the phase.
    later phase, with a new reason, and the owner is told.
 4. A row is never deleted. It is closed as `done` with what did it, or
    `dropped` with the decision that dropped it.
-5. `scripts/check-backlog.py` checks the file: the columns, unique ids, a
+5. A `TODO`, `FIXME`, `XXX` or `HACK` in the code cites its row,
+   `TODO(B-012)`, and is removed in the change that closes the row. An
+   agent reads every note it meets and may act on it, so a note about
+   finished or unrecorded work costs time and leads it astray.
+6. `scripts/check-backlog.py` checks the file: the columns, unique ids, a
    reason on every row, and `closed_by` on every row that is not open.
-   With `--phase NAME` it fails while that phase has open rows, which is
-   the check that closes a phase.
+   It also reads the files in git and fails on a marker that cites no
+   row, a row that does not exist, or a row that is not open. Markdown
+   pages and the paths in its `NOT_SCANNED` list are left out; add there
+   the code of others kept in the repository. With `--phase NAME` it
+   fails while that phase has open rows, which is the check that closes a
+   phase.

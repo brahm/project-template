@@ -45,9 +45,12 @@ organise.
     repeats, record it and add what prevents it: a check before a rule, a
     sharper rule before a new one. The owner should not have to say it
     twice.
-11. **Work lean.** Read only what the task touches, search instead of
-    reading whole files, and do not paste long outputs. Tokens and the
-    owner's attention are part of the cost.
+11. **Work lean, on the task.** Read only what the task touches, search
+    instead of reading whole files, and do not paste long outputs. Tokens
+    and the owner's attention are part of the cost. A `TODO`, a note or a
+    problem met while reading is information, not a task: check that it
+    is still open before trusting it, and leave what is outside the task
+    to the backlog and a line in the report.
 12. **Report** with the outcome first, then what it depends on, then what
     you assumed, then what was left undone and where it went. Plain
     words, full sentences, absolute dates, no claim of a check that was

@@ -8,7 +8,7 @@ project, and how the project and the template stay in step.
 | | |
 | --- | --- |
 | Template | <https://github.com/brahm/project-template>, folder `project-template` |
-| Kit version | 1.1.0 |
+| Kit version | 1.2.0 |
 
 ## How the pieces fit
 

@@ -84,8 +84,12 @@ it matters, and by a rule only when nothing else will.
 - **Decisions belong to the owner**, logged with an id, never erased.
 - **Tests**: those of the change while working, all once before finishing;
   a bug is fixed with a test that fails first; never loosened to pass.
-- **Work lean**: read only what the task touches; tokens and the owner's
-  attention are part of the cost.
+- **Work lean, on the task**: read only what the task touches; tokens and
+  the owner's attention are part of the cost. A `TODO` met on the way is
+  information, not a task.
+- **No stale notes**: every `TODO`, `FIXME`, `XXX` or `HACK` cites an open
+  backlog row, `TODO(B-012)`, and goes away when the row closes
+  (`scripts/check-backlog.py`).
 - **A lesson becomes a guard**: a check before a rule, a sharper rule
   before a new one.
 - **Comments and writing**: a module comment per file, a doc comment per

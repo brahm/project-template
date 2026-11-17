@@ -19,12 +19,16 @@ is moved to a later phase:
    - `from_phase`: the phase it belonged to;
    - `to_phase`: the phase it moves to, or `end-of-phase`;
    - `status`: `open`; `closed_by`: `-`.
-2. **Run** `python3 scripts/check-backlog.py` and fix what it reports.
-3. **Update the inventory row** if its status or phase changed.
-4. **Tell the owner** in the report, explicitly, in a line of its own:
+2. **Mark the code only with the row.** A `TODO` left in the code cites
+   it, `TODO(B-nnn)`; a bare `TODO` fails the check.
+3. **Run** `python3 scripts/check-backlog.py` and fix what it reports.
+4. **Update the inventory row** if its status or phase changed.
+5. **Tell the owner** in the report, explicitly, in a line of its own:
    "Left undone: <item> (B-nnn), moved to phase <phase>, because <reason>."
    Do this for every row, even small ones. Never bury it in a summary.
 
 When you later finish a backlog row, set `status` to `done` and
-`closed_by` to the commit or pull request. A row is `dropped` only by a
+`closed_by` to the commit or pull request, and remove every
+`TODO(B-nnn)` of that row in the same change: a note about finished work
+sends the next agent after it. A row is `dropped` only by a
 decision of the owner, named in `closed_by`. Rows are never deleted.

@@ -17,7 +17,8 @@ whole life of the project.
 3. **Phases**: update `docs/dashboard/phases.tsv` if a phase started
    (`in-progress`, `started` = today) or ended (use `close-phase`).
 4. **Backlog**: every unfinished piece has a row (`defer-work`); rows you
-   finished are `done` with `closed_by`.
+   finished are `done` with `closed_by`, and their `TODO(B-nnn)` comments
+   are gone. A problem you noticed outside the task has a row, not a fix.
 5. **Lessons**: if the owner had to correct something, or a mistake
    repeated, it has a row and a guard (`capture-lesson`).
 6. **Dashboard**: run

@@ -86,8 +86,12 @@ certo, e com uma regra só quando nada mais serve.
 - **Testes**: os da mudança durante o trabalho, todos uma vez no fim; um
   bug se corrige com um teste que falha primeiro; nunca afrouxados para
   passar.
-- **Trabalhar enxuto**: ler só o que a tarefa toca; tokens e a atenção do
-  dono fazem parte do custo.
+- **Trabalhar enxuto, na tarefa**: ler só o que a tarefa toca; tokens e a
+  atenção do dono fazem parte do custo. Um `TODO` encontrado no caminho é
+  informação, não tarefa.
+- **Nenhuma nota velha**: todo `TODO`, `FIXME`, `XXX` ou `HACK` cita uma
+  pendência aberta, `TODO(B-012)`, e sai quando ela fecha
+  (`scripts/check-backlog.py`).
 - **Uma lição vira proteção**: uma verificação antes de uma regra, uma
   regra mais precisa antes de uma nova.
 - **Comentários e escrita**: um comentário de módulo por arquivo, um de
