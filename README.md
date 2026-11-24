@@ -25,7 +25,7 @@ rest and reports what it assumed.
 
 | Folder | What it is | For |
 | --- | --- | --- |
-| `project-template/` | A repository to start new projects from: `AGENTS.md` (the single source of the rules), `CLAUDE.md` pointing to it, `docs/` (goals, decisions, architecture, roadmap, verification, engineering standards, specifications, inventory, backlog, project log, lessons, writing style, dashboard), `HISTORY.md`, `CONTRIBUTING.md`, eleven skills, a session hook, scripts, PR and issue templates, CI with an automatic review of each pull request, `REUSE.toml`, and `init-project.sh` | Every new repository |
+| `project-template/` | A repository to start new projects from: `AGENTS.md` (the single source of the rules), `CLAUDE.md` pointing to it, `docs/` (goals, decisions, architecture, roadmap, verification, engineering standards, specifications, inventory, backlog, project log, lessons, writing style, dashboard, and the Second Brain), `HISTORY.md`, `CONTRIBUTING.md`, twelve skills, session hooks, scripts, PR and issue templates, CI with an automatic review of each pull request, `REUSE.toml`, and `init-project.sh` | Every new repository |
 | `user-level/` | The working rules for your user (all projects), your defaults for new projects, and `install-user.sh`, which adds them and the skills to Claude Code, Codex and Pi without overwriting your files | Your computer, once |
 | `desktop/` | Text to paste into the instructions of a Claude or ChatGPT Project, and each skill zipped for upload to Claude | Chat apps without a repository |
 | `tools/`, `AGENTS.md`, `HISTORY.md` | For working on the kit itself: the rules, the script that rebuilds the zips, the test that makes a project from the template, and the kit's versions | Whoever changes the kit |
@@ -59,14 +59,23 @@ it matters, and by a rule only when nothing else will.
   optimisations, and posts on the pull request what must be fixed, or
   that it passed. A blocking finding fails the check, so it cannot be
   merged by mistake. It needs your API key as a repository secret.
+- **What the project learns is kept, and found in seconds.** The Second
+  Brain (`docs/brain/`) holds one Markdown note per subject: how a part
+  works, the facts of the domain, the quirks of a service, the cause of
+  a problem. The agent writes it as it learns, a hook reminds it, and
+  `scripts/brain.py find WORDS` searches the notes and every record at
+  once. Decisions, dates and changes stay in their logs; the notes cite
+  them by id instead of copying them.
 - **Your corrections become guards.** When you have to correct the
   agent, it records the lesson and adds what prevents it, and proposes it
   to the template when it would help every project.
 
 ## The rules, in short
 
-- **Start from the state** (`scripts/status.py`); **the skills apply by
-  themselves**.
+- **Start from the state** (`scripts/status.py`) **and from what is
+  known** (`scripts/brain.py find`); **the skills apply by themselves**.
+- **Write down what was learned** in the note of its subject in the
+  Second Brain, citing the records rather than copying them.
 - **Who decides**: the owner, the goal and the scope; the agent, on the
   record, what was left open; the agent, the how.
 - **Prioritize before executing**, and say the order.
@@ -116,6 +125,7 @@ The agent applies each one at its moment; you do not call them.
 | `close-phase` | End of a phase: backlog to zero, checks, forecast, assumed decisions, lessons |
 | `report-to-owner` | Any report or PR description |
 | `capture-lesson` | The owner corrects the agent, or a mistake repeats: the lesson and its guard |
+| `update-brain` | The agent learned something the next session will need: the note of its subject in the Second Brain |
 | `update-from-template` | The template changed, or a lesson is worth taking to it |
 
 Outside skills are not bundled. `docs/kit.md` in the template says when
@@ -196,7 +206,7 @@ for the name, the owner, the languages, the time zone and the licence
 
 | Agent | What it reads | What the script does |
 | --- | --- | --- |
-| Claude Code | `CLAUDE.md` (imports `AGENTS.md`), `.claude/skills/`, `.claude/settings.json` (the session hook and the allowed check scripts) | Keeps them |
+| Claude Code | `CLAUDE.md` (imports `AGENTS.md`), `.claude/skills/`, `.claude/settings.json` (the hooks that print the state when a session starts and recall the Second Brain when the agent stops, and the allowed check scripts) | Keeps them |
 | Codex CLI (and Codex in ChatGPT) | `AGENTS.md`; skills in `.agents/skills/` | Links `.agents/skills` to `.claude/skills` |
 | Pi | `AGENTS.md`; skills in `.pi/skills/` | Links `.pi/skills` to `.claude/skills` |
 | Gemini CLI | `GEMINI.md` by default | Writes `.gemini/settings.json` so it reads `AGENTS.md` |
@@ -258,6 +268,9 @@ What you will look at, besides the reports:
   (`docs/kit.md` in the template, "The automatic review").
 - **The records**: `docs/decisions.md`, `docs/backlog/deferred.tsv`,
   `docs/project-log.md`, `docs/lessons.md` and `HISTORY.md`.
+- **What the project knows**: `python3 scripts/brain.py find WORDS`, or
+  the index of notes in `docs/brain/README.md`. The notes are plain
+  Markdown, so they also open as a vault in Obsidian or any editor.
 
 To keep a project in step with the kit, pull the kit (`git -C agent-kit
 pull`) and tell the agent in the project that the template changed. For

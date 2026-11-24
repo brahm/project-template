@@ -235,6 +235,49 @@ must_fail 'a review result of the wrong shape' 'not usable' review
 must_fail 'an empty review result' 'not usable' review
 has "$(cat "$WORK/review.md")" 'não devolveu um resultado utilizável'
 
+step 'The Second Brain: notes are found, kept well formed and asked for'
+has "$(cat docs/brain/glossary.md)" "Updated: $(date +%F)"
+has "$(python3 scripts/status.py)" 'Second Brain: 1 note in docs/brain'
+has "$(python3 scripts/brain.py find owner)" 'docs/brain/glossary.md: Glossary.'
+has "$(python3 scripts/brain.py find owner confirms)" 'docs/decisions.md:'
+has "$(python3 scripts/brain.py find quasar)" 'Nothing is known about "quasar" yet'
+printf '# Cache\n\n> The cache is per user, by decisão D-002.\n\nTags: cache\nUpdated: 2026-11-24\n' \
+    >docs/brain/cache.md
+must_fail 'a note missing from the index' 'the table of notes is out of date' python3 scripts/brain.py check
+python3 scripts/brain.py index >/dev/null
+python3 scripts/brain.py check
+has "$(cat docs/brain/README.md)" '| [Cache](cache.md) | The cache is per user, by decisão D-002. | cache | 2026-11-24 |'
+has "$(python3 scripts/brain.py find DECISAO cache)" 'docs/brain/cache.md: Cache.'   # case and accents ignored
+sed -i '/^> /d' docs/brain/cache.md
+must_fail 'a note without its summary' 'cache.md: no summary' python3 scripts/brain.py check
+printf '# Cache\n\n> Per user (D-999).\n\nTags: cache\nUpdated: 2026-11-24\n' >docs/brain/cache.md
+must_fail 'a note citing a decision that does not exist' 'cache.md:3: D-999 is cited' python3 scripts/check-docs.py
+cp docs/brain/cache.md docs/brain/Cache_Notes.md
+python3 scripts/brain.py index >/dev/null
+must_fail 'a note not named in lower case with hyphens' 'name it in lower case with hyphens' python3 scripts/brain.py check
+rm docs/brain/cache.md docs/brain/Cache_Notes.md && python3 scripts/brain.py index >/dev/null
+mkdir -p docs/brain/old && printf '# Old\n\n> Old.\n\nUpdated: 2026-11-24\n' >docs/brain/old/old.md
+must_fail 'a note in a subfolder, where nothing finds it' 'notes sit directly in docs/brain' python3 scripts/brain.py check
+rm -r docs/brain/old
+git add -A && git commit -qm 'Work so far' && git update-ref refs/remotes/origin/main HEAD
+# The Stop hook asks once per set of changed files, and not when a note changed.
+[ -z "$(echo '{}' | python3 scripts/brain.py nudge)" ] || fail 'the nudge spoke with nothing changed'
+echo 'print(1)' >tool.py
+has "$(echo '{}' | python3 scripts/brain.py nudge)" '"decision": "block"'
+[ -z "$(echo '{}' | python3 scripts/brain.py nudge)" ] || fail 'the nudge asked twice for the same files'
+echo 'print(2)' >tool2.py
+[ -z "$(echo '{"stop_hook_active": true}' | python3 scripts/brain.py nudge)" ] || fail 'the nudge looped'
+has "$(echo 'not json' | python3 scripts/brain.py nudge)" '"decision": "block"'
+echo '- One more word.' >>docs/brain/glossary.md && echo 'print(3)' >tool3.py
+[ -z "$(echo '{}' | python3 scripts/brain.py nudge)" ] || fail 'the nudge spoke although a note changed'
+git checkout -q docs/brain/glossary.md && rm tool.py tool2.py tool3.py
+python3 - <<'PYJ'
+import json
+hooks = json.load(open('.claude/settings.json'))['hooks']
+assert 'brain.py" nudge' in hooks['Stop'][0]['hooks'][0]['command'], 'the Stop hook does not run the nudge'
+PYJ
+echo 'ok'
+
 step 'A source that disagrees is reported, and the session still starts'
 sed -i 's/^P2\tnot-started/P9\tnot-started/' docs/dashboard/phases.tsv
 has "$(python3 scripts/status.py)" 'STATE: THE SOURCES DISAGREE'

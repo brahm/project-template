@@ -27,7 +27,7 @@ Ele faz o resto e relata o que assumiu.
 
 | Pasta | O que é | Para quê |
 | --- | --- | --- |
-| `project-template/` | Um repositório para começar projetos novos: `AGENTS.md` (a fonte única das regras), `CLAUDE.md` apontando para ele, `docs/` (objetivos, decisões, arquitetura, roteiro, verificação, padrões de engenharia, especificações, inventário, pendências, log do projeto, lições, estilo de escrita, painel), `HISTORY.md`, `CONTRIBUTING.md`, onze skills, um hook de início de sessão, scripts, modelos de PR e de issue, CI com revisão automática de cada pull request, `REUSE.toml` e `init-project.sh` | Cada repositório novo |
+| `project-template/` | Um repositório para começar projetos novos: `AGENTS.md` (a fonte única das regras), `CLAUDE.md` apontando para ele, `docs/` (objetivos, decisões, arquitetura, roteiro, verificação, padrões de engenharia, especificações, inventário, pendências, log do projeto, lições, estilo de escrita, painel e o Second Brain), `HISTORY.md`, `CONTRIBUTING.md`, doze skills, hooks de sessão, scripts, modelos de PR e de issue, CI com revisão automática de cada pull request, `REUSE.toml` e `init-project.sh` | Cada repositório novo |
 | `user-level/` | As regras de trabalho para o seu usuário (todos os projetos), os seus padrões para projetos novos e `install-user.sh`, que os instala com as skills no Claude Code, no Codex e no Pi sem sobrescrever seus arquivos | Seu computador, uma vez |
 | `desktop/` | Texto para colar nas instruções de um Projeto do Claude ou do ChatGPT, e cada skill em .zip para enviar ao Claude | Apps de conversa, sem repositório |
 | `tools/`, `AGENTS.md`, `HISTORY.md` | Para trabalhar no próprio kit: as regras, o script que refaz os .zip, o teste que cria um projeto a partir do modelo e as versões do kit | Quem altera o kit |
@@ -61,14 +61,23 @@ certo, e com uma regra só quando nada mais serve.
   ou que tudo passou. Um apontamento bloqueante faz a verificação falhar,
   e o merge não acontece por engano. Precisa da sua chave de API como
   segredo do repositório.
+- **O que o projeto aprende fica guardado e é achado em segundos.** O
+  Second Brain (`docs/brain/`) tem uma nota em Markdown por assunto: como
+  uma parte funciona, os fatos do domínio, as manias de um serviço, a
+  causa de um problema. O agente escreve enquanto aprende, um hook
+  lembra, e `scripts/brain.py find PALAVRAS` busca nas notas e em todos
+  os registros de uma vez. Decisões, datas e mudanças ficam nos seus
+  logs; as notas citam o id em vez de copiar.
 - **Suas correções viram proteções.** Quando você precisa corrigir o
   agente, ele registra a lição, cria o que a evita e propõe levar ao
   modelo quando serve para qualquer projeto.
 
 ## As regras, em resumo
 
-- **Começar pelo estado** (`scripts/status.py`); **as skills se aplicam
-  sozinhas**.
+- **Começar pelo estado** (`scripts/status.py`) **e pelo que já se sabe**
+  (`scripts/brain.py find`); **as skills se aplicam sozinhas**.
+- **Anotar o que foi aprendido** na nota do assunto no Second Brain,
+  citando os registros em vez de copiá-los.
 - **Quem decide**: o dono, o objetivo e o escopo; o agente, com registro,
   o que ficou em aberto; o agente, o como.
 - **Priorizar antes de executar**, e dizer a ordem.
@@ -120,6 +129,7 @@ O agente aplica cada uma no seu momento; você não precisa chamá-las.
 | `close-phase` | Fim de fase: pendências zeradas, verificações, previsão, decisões assumidas, lições |
 | `report-to-owner` | Qualquer relatório ou descrição de PR |
 | `capture-lesson` | O dono corrigiu o agente, ou um erro se repetiu: a lição e a proteção |
+| `update-brain` | O agente aprendeu algo que a próxima sessão vai precisar: a nota do assunto no Second Brain |
 | `update-from-template` | O modelo mudou, ou uma lição merece ir para ele |
 
 Skills de fora não vêm no pacote. O `docs/kit.md` do modelo diz quando
@@ -199,7 +209,7 @@ agente (`--tools all` por padrão, ou uma lista como `--tools claude,codex`):
 
 | Agente | O que ele lê | O que o script faz |
 | --- | --- | --- |
-| Claude Code | `CLAUDE.md` (que importa o `AGENTS.md`), `.claude/skills/` e `.claude/settings.json` (o hook de início de sessão e os scripts de verificação liberados) | Mantém |
+| Claude Code | `CLAUDE.md` (que importa o `AGENTS.md`), `.claude/skills/` e `.claude/settings.json` (os hooks que mostram o estado no início da sessão e lembram do Second Brain quando o agente para, e os scripts de verificação liberados) | Mantém |
 | Codex CLI (e o Codex no ChatGPT) | `AGENTS.md`; skills em `.agents/skills/` | Liga `.agents/skills` a `.claude/skills` |
 | Pi | `AGENTS.md`; skills em `.pi/skills/` | Liga `.pi/skills` a `.claude/skills` |
 | Gemini CLI | `GEMINI.md` por padrão | Cria `.gemini/settings.json` para ele ler o `AGENTS.md` |
@@ -263,6 +273,9 @@ O que você vai olhar, além dos relatórios:
   segredo, a revisão é pulada com um aviso.
 - **Os registros**: `docs/decisions.md`, `docs/backlog/deferred.tsv`,
   `docs/project-log.md`, `docs/lessons.md` e `HISTORY.md`.
+- **O que o projeto sabe**: `python3 scripts/brain.py find PALAVRAS`, ou
+  o índice de notas em `docs/brain/README.md`. As notas são Markdown
+  puro, então também abrem como cofre no Obsidian ou em qualquer editor.
 
 Para manter um projeto em dia com o kit, atualize o kit (`git -C agent-kit
 pull`) e diga ao agente, no projeto, que o modelo mudou. Para os arquivos

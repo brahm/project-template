@@ -3,7 +3,7 @@
 This repository is a starting point for a project developed by an owner
 who decides and approves, with coding agents that plan, write and document.
 It carries the rules (`AGENTS.md`), the documents they rely on (`docs/`),
-eleven skills (`.claude/skills/`), a backlog register, a progress dashboard
+twelve skills (`.claude/skills/`), a Second Brain of notes (`docs/brain/`), a backlog register, a progress dashboard
 generated from the repository, and checks that keep them honest.
 
 1. Create the new repository from this one (GitHub: "Use this template"),

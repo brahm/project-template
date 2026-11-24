@@ -11,7 +11,9 @@ it to the task: a one-line fix needs steps 2, 4 and 8 in your head, not a
 written plan.
 
 1. **Start from the state**: the output of `python3 scripts/status.py`.
-   Read `docs/goals.md` only if the task touches the target.
+   Read `docs/goals.md` only if the task touches the target. Run
+   `python3 scripts/brain.py find` with the words of the task: what the
+   project learned about it before is in the notes it lists.
 2. **Find each piece of work in the inventory** (`grep` the id or the
    words in `docs/inventory/*.tsv`): its id, scope, status and phase.
    Work without a row gets a new row (next free id, `scope` In, `status`

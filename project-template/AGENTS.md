@@ -25,10 +25,14 @@ These rules name what must not be forgotten. Inside them, how to reach the
 goal is yours to organise: the owner counts on you to plan, to notice what
 was not specified, and to keep the records.
 
-1. **Start from the state.** `python3 scripts/status.py` says in a few
-   lines where the project stands: the phase in progress, what comes next,
-   the open backlog, the decisions waiting for the owner. Claude Code runs
-   it when a session starts; with another agent, run it first.
+1. **Start from the state and from what is known.** `python3
+   scripts/status.py` says in a few lines where the project stands: the
+   phase in progress, what comes next, the open backlog, the decisions
+   waiting for the owner. Claude Code runs it when a session starts; with
+   another agent, run it first. Before a task, and before asking the
+   owner anything, `python3 scripts/brain.py find WORDS` finds what the
+   project already knows about it: the notes of the
+   [Second Brain](docs/brain/README.md), then the records.
 2. **The skills apply by themselves.** The owner never has to name one.
    When one of these moments comes, open `.claude/skills/NAME/SKILL.md`
    and follow it:
@@ -44,6 +48,7 @@ was not specified, and to keep the records.
    | A pull request, a thread of work or a phase ends | `close-task-set`, `close-phase` |
    | Any report to the owner | `report-to-owner` |
    | The owner corrects you, or a mistake repeats | `capture-lesson` |
+   | You learn something the next session will need | `update-brain` |
    | The template has a newer version | `update-from-template` |
 
 3. **Who decides.**

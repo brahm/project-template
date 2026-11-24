@@ -59,7 +59,10 @@ scripts and the other skills need no reading now.
    `kit:not-started` lines of `AGENTS.md`.
 10. **First records**: the first timeline entry of the project log with
     the reasons of the first decisions, and the first lines of
-    `HISTORY.md`. Run `python3 scripts/dashboard.py --record` and
+    `HISTORY.md`. Seed the Second Brain (`update-brain`): the words of the
+    domain in `docs/brain/glossary.md`, and a note for each subject of the
+    brief that will be needed again (the reference, the users, an outside
+    service). Run `python3 scripts/dashboard.py --record` and
     `scripts/check-all.sh`, and commit.
 11. **Report** with `report-to-owner`: the plan in a few lines, every
     assumption with its decision id, and the questions still open.

@@ -8,16 +8,17 @@ project, and how the project and the template stay in step.
 | | |
 | --- | --- |
 | Template | <https://github.com/brahm/project-template>, folder `project-template` |
-| Kit version | 1.3.0 |
+| Kit version | 1.4.0 |
 
 ## How the pieces fit
 
 | Piece | What it does | When it runs |
 | --- | --- | --- |
 | `AGENTS.md` | The rules, and the moments at which each skill applies | Read by every agent at the start of a session |
-| `.claude/skills/` | One short procedure per moment: starting, planning, specifying, deferring, deciding, validating, closing, reporting, learning | Opened by the agent when the moment comes; the owner does not invoke them |
-| `.claude/settings.json` | Runs `scripts/status.py` when a Claude Code session starts, and lets the project's own check scripts run without asking | By Claude Code |
+| `.claude/skills/` | One short procedure per moment: starting, planning, specifying, deferring, deciding, validating, closing, reporting, learning, keeping the Second Brain | Opened by the agent when the moment comes; the owner does not invoke them |
+| `.claude/settings.json` | Runs `scripts/status.py` when a Claude Code session starts, reminds the agent of the Second Brain when a piece of work changed files and no note (`scripts/brain.py nudge`), and lets the project's own check scripts run without asking | By Claude Code, at the start of a session and when the agent stops |
 | `scripts/status.py` | The state of the project in a few lines, so that an agent does not read five pages to learn it | At the start of a session |
+| `docs/brain/` and `scripts/brain.py` | The Second Brain: what the project knows, one note per subject; `find` searches the notes and the records at once, `index` lists the notes, `check` keeps them well formed ([brain/README.md](brain/README.md)) | `find` before a task; the notes are written by `update-brain` as the agent learns |
 | `scripts/check-all.sh` | Every check: the language's, the backlog, the dashboard sources, the docs, the records, the licences | Once before a set of tasks ends, and in CI |
 | `scripts/check-docs.py` | Links between pages resolve, ids cited exist, the decision log is well formed, no placeholder is left | In `check-all.sh` |
 | `scripts/check-records.py` | The dashboard was recorded, and a change comes with its HISTORY line and its project log entry | In `check-all.sh` and on pull requests |
@@ -31,8 +32,10 @@ forgotten, it becomes a check ([lessons.md](lessons.md)).
 
 `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `.claude/`, `scripts/`,
 `.github/`, and in `docs`: `README.md`, `engineering.md`,
-`writing-style.md`, `kit.md`, and the `README.md` of `backlog`,
-`dashboard`, `inventory` and `specs`. The other pages of `docs` and
+`writing-style.md`, `kit.md`, and the `README.md` of `backlog`, `brain`,
+`dashboard`, `inventory` and `specs` (after taking the one of `brain`, run
+`python3 scripts/brain.py index` to list the project's notes in it). The
+notes of `docs/brain`, the other pages of `docs` and
 `HISTORY.md` hold the project's own content and are never replaced by the
 template's.
 

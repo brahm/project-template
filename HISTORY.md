@@ -5,6 +5,24 @@ from the template reads this file to learn what is newer than its own kit
 version (`docs/kit.md` in the project, and the `update-from-template`
 skill).
 
+## Changes in 1.4.0 (2026-11-24)
+
+* Added: The Second Brain, `docs/brain/`: what the project knows, one
+  Markdown note per subject, in the Zettelkasten way (one idea per note,
+  linked notes) kept as an agent-maintained wiki. Each note opens with
+  the current truth and cites decisions, lessons and rows by id instead
+  of copying the logs; dates, estimates and changes stay in their
+  records. `docs/brain/README.md` has the method and the index.
+* Added: `scripts/brain.py`: `find WORDS` searches the notes and every
+  record at once, `index` writes the index, `check` (in `check-all.sh`)
+  keeps the notes well formed, and `nudge`, a Claude Code Stop hook in
+  `.claude/settings.json`, reminds the agent once when a piece of work
+  changed files and no note. `check-docs.py` checks the ids the notes
+  cite, and `status.py` points to the brain.
+* Added: The `update-brain` skill. Rule 1 of `AGENTS.md` has the agent
+  search the brain before a task; `plan-task-set`, `close-task-set` and
+  `start-project` read, review and seed it at their moment.
+
 ## Changes in 1.3.0 (2026-11-24)
 
 * Added: An automatic review of every pull request before the merge.
