@@ -272,7 +272,9 @@ do seu usuário, rode `install-user.sh --replace-skills` de novo.
 
 O `AGENTS.md` da raiz tem as regras para trabalhar no kit, e o
 `HISTORY.md` as versões. Depois de uma mudança, `tools/build-kit.py`
-refaz os .zip das skills e `tools/test-kit.sh` cria um projeto a partir
+refaz os .zip das skills e a cópia da revisão automática do próprio kit
+(os pull requests do kit são revisados como os de um projeto, depois que o
+secret `ANTHROPIC_API_KEY` for cadastrado no repositório do kit), e `tools/test-kit.sh` cria um projeto a partir
 do modelo numa pasta temporária, roda as verificações e testa cada
 proteção contra o erro que ela existe para pegar. O CI roda o mesmo
 teste.

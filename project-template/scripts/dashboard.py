@@ -17,7 +17,7 @@ Usage: scripts/dashboard.py [--out FILE] [--artifact FILE] [--record]
   --date           the day the page is generated for (default: today in
                    the time zone of config.toml); for tests
   --no-prs         do not ask GitHub for the pull requests; read the
-                   merges of the local git history instead
+                   merged pull requests of the local git history instead
 
 Every number on the page is read from a file of the repository:
 
@@ -34,7 +34,7 @@ Every number on the page is read from a file of the repository:
                                 owner has not confirmed yet
 
 The recent pull requests come from GitHub (`gh api search/issues`), or
-from the merges of the git history when `gh` cannot answer. How the numbers
+from the merged pull requests of the git history when `gh` cannot answer. How the numbers
 are worked out is in docs/dashboard/README.md. Needs Python 3.11 or later.
 """
 import argparse
@@ -271,22 +271,34 @@ def load_prs(repo, use_github):
             if rows:
                 return rows, 'GitHub'
         except (OSError, subprocess.SubprocessError, ValueError, KeyError) as e:
-            print(f'warning: GitHub did not answer ({e}); reading the merges of git', file=sys.stderr)
+            print(f'warning: GitHub did not answer ({e}); reading the merged pull requests of git', file=sys.stderr)
+    # The first-parent history of the branch: a merge commit ("Merge pull
+    # request #N from ...", its title in the body), or a squashed or rebased
+    # pull request ("Title (#N)").
     try:
-        out = subprocess.run(['git', '-C', str(ROOT), 'log', '--merges', '-n', '200',
+        out = subprocess.run(['git', '-C', str(ROOT), 'log', '--first-parent', '-n', '300',
                               '--format=%cs%x09%s%x09%b%x00'],
                              capture_output=True, text=True, check=True).stdout
     except (OSError, subprocess.SubprocessError):
         return [], 'git'
-    rows = []
+    rows, seen = [], set()
     for entry in out.split('\0'):
         date, _, rest = entry.strip().partition('\t')
         subject, _, body = rest.partition('\t')
-        m = re.match(r'Merge pull request #(\d+) ', subject)
-        if m:
+        merge = re.match(r'Merge pull request #(\d+) ', subject)
+        squash = re.fullmatch(r'(.+) \(#(\d+)\)', subject.strip())
+        if merge:
+            number = int(merge.group(1))
             title = body.strip().splitlines()[0] if body.strip() else subject
-            url = f'https://github.com/{repo}/pull/{m.group(1)}' if repo else ''
-            rows.append({'number': int(m.group(1)), 'title': title, 'state': 'merged', 'date': date, 'url': url})
+        elif squash:
+            number, title = int(squash.group(2)), squash.group(1)
+        else:
+            continue
+        if number in seen:
+            continue
+        seen.add(number)
+        url = f'https://github.com/{repo}/pull/{number}' if repo else ''
+        rows.append({'number': number, 'title': title, 'state': 'merged', 'date': date, 'url': url})
     return rows[:10], 'git'
 
 
@@ -728,8 +740,11 @@ def main():
         print(f'{len(items)} items, {len(phases)} phases, {len(backlog)} backlog rows: the sources agree')
         return
     prs, prs_source = load_prs(cfg.get('repo', ''), not args.no_prs)
-    commit = subprocess.run(['git', '-C', str(ROOT), 'rev-parse', '--short', 'HEAD'],
-                            capture_output=True, text=True).stdout.strip() or '-'
+    try:
+        commit = subprocess.run(['git', '-C', str(ROOT), 'rev-parse', '--short', 'HEAD'],
+                                capture_output=True, text=True).stdout.strip() or '-'
+    except OSError:                 # git is not installed
+        commit = '-'
 
     totals = collections.Counter(i['state'] for i in items)
     row = {'date': today.isoformat(), 'in_scope': sum(totals[k] for k in STATES),

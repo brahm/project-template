@@ -10,6 +10,7 @@ on:
       - docs/inventory/**
       - docs/roadmap.md
       - docs/backlog/**
+      - docs/decisions.md
       - docs/dashboard/**
       - scripts/dashboard.py
   workflow_dispatch:

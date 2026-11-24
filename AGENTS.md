@@ -30,8 +30,9 @@ are editing.
    repository, and the tables of `README.md` and `LEIA-ME.md` list them
    and the skills. A change to a rule or a skill changes all of these in
    the same pull request.
-3. **Run `tools/build-kit.py`** after changing a skill: it rebuilds the
-   zips of `desktop/claude-skills/`.
+3. **Run `tools/build-kit.py`** after changing a skill or the template's
+   `review.yml`: it rebuilds the zips of `desktop/claude-skills/` and the
+   kit's own `.github/workflows/review.yml`.
 4. **Run `tools/test-kit.sh`** before pushing. It makes a project from the
    template in a temporary folder, runs its checks, its state report and
    its dashboard, tries each guard on the mistake it exists for, and

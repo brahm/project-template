@@ -37,6 +37,8 @@ jobs:
       # updates) are let through.
       - name: Check the records of the set of tasks
         if: github.event_name == 'pull_request' && !endsWith(github.actor, '[bot]')
-        run: python3 scripts/check-records.py --base "origin/${{ github.base_ref }}"
+        env:
+          BASE: ${{ github.base_ref }}
+        run: python3 scripts/check-records.py --base "origin/$BASE"
       - name: REUSE compliance
         uses: fsfe/reuse-action@v5

@@ -22,6 +22,22 @@ skill).
   and code fences, and withholds a result that holds a secret; and
   `init-project.sh` writes `.github/CODEOWNERS` so that a change to the
   review waits for the owner.
+* Fixed: `scripts/check-docs.py` names a page that is not UTF-8 instead
+  of stopping with a traceback, and `scripts/dashboard.py` runs without
+  git installed.
+* Fixed: Without GitHub, the dashboard also lists the pull requests that
+  were squashed or rebased (a commit "Title (#N)"), not only merge commits.
+* Fixed: The dashboard is published again when `docs/decisions.md`
+  changes, since it lists the decisions waiting for the owner.
+* Changed: `checks.yml` gives the base branch to its script through the
+  environment instead of writing it into the command, and
+  `close-task-set` and `docs/dashboard/README.md` write the dashboard
+  fragment to `_site/`, which also exists on Windows, instead of `/tmp/`.
+* Added: The kit reviews its own pull requests with the same workflow:
+  `tools/build-kit.py` copies the template's `review.yml` to the kit's
+  `.github/workflows/`, with the kit's paths, and its `--check` compares
+  the skill zips by their files, so that another zlib does not make them
+  look stale.
 * Fixed: `init-project.sh` checks the dashboard language, the time zone,
   the repository and the licence before it changes any file, so that a
   bad value no longer leaves the project half filled.
