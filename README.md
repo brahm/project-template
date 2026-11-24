@@ -10,8 +10,29 @@ and other agents that read `AGENTS.md`.
 
 ## Quick start
 
-Open Claude Code in the folder of the project (an empty one for a new
-project) and paste:
+In a terminal, on Linux, macOS or Windows (in WSL), in the folder where
+you keep your projects, or in the project you already have:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/brahm/project-template/main/install.sh | sh
+```
+
+It keeps the kit in `~/.agent-kit`, adds the command `agent-kit`, and asks
+what to do: start a new project (it fills the template with your
+defaults, creates a private GitHub repository, pushes the first commit,
+saves the token of your Claude Pro or Max plan for the automatic review
+and protects `main`), add the kit to the project in that folder without
+overwriting anything, or update. Next time, type `agent-kit new
+my-project`, `agent-kit existing` or `agent-kit update`. Then:
+
+```sh
+cd my-project && claude                       # or codex, pi, gemini...
+```
+
+and tell the agent what you want to build, in your own words. It does the
+rest and reports what it assumed.
+
+Or from a prompt: open Claude Code in the folder of the project and paste
 
 ```text
 Install the agent project kit in this folder. Clone
@@ -19,31 +40,11 @@ https://github.com/brahm/project-template into a temporary folder and
 follow its INSTALL-AGENT.md. What I want to build: ...
 ```
 
-It installs the kit (a new project or one under way), puts it on GitHub,
-and starts the project in the same conversation. The one step left to you
-is `scripts/setup-github.sh` in a terminal of your own, which saves the
-token of your Claude plan for the automatic review without it passing
-through the chat ([INSTALL.md](INSTALL.md#from-a-prompt-the-simplest)).
-
-Or without an agent: one command, on your computer, with `git`, Python 3.11+ and the GitHub CLI
-`gh` installed:
-
-```sh
-bash <(curl -fsSL https://raw.githubusercontent.com/brahm/project-template/main/install.sh) new my-project
-```
-
-It makes `my-project` from the template, creates a private GitHub
-repository, pushes the first commit, saves the token of your Claude Pro or
-Max plan for the automatic review and protects `main`. Then:
-
-```sh
-cd my-project && claude                       # or codex, pi, gemini...
-```
-
-and tell the agent what you want to build, in your own words. It does the
-rest and reports what it assumed. For a project already under way, use
-`existing` instead of `new my-project`, in its folder. The manual,
-[INSTALL.md](INSTALL.md), has every case, the options and how to update.
+The agent runs the installer and starts the project in the same
+conversation; the one step left to you is `scripts/setup-github.sh` in a
+terminal of your own, so that the token never passes through the chat.
+The manual, [INSTALL.md](INSTALL.md), has every case, the options, Windows
+and how to update.
 
 ## What is in it
 
@@ -174,12 +175,12 @@ project under way, the GitHub part, and updating. In short:
 | `install.sh github [DIR]` | Only the GitHub part, `scripts/setup-github.sh`: the secret `CLAUDE_CODE_OAUTH_TOKEN` and the ruleset of `main` |
 | `install.sh user` | Only the rules and skills for your user, `user-level/install-user.sh` |
 
-Run it from a clone of the kit (`git clone
-https://github.com/brahm/project-template agent-kit`, then
-`agent-kit/install.sh ...`), or alone with `bash <(curl -fsSL
-https://raw.githubusercontent.com/brahm/project-template/main/install.sh)
-...`, which fetches the kit first. Every command can be run again: what is
-done is kept and what is missing is done.
+Run it with the line of the quick start, which keeps the kit in
+`~/.agent-kit` and adds the command `agent-kit` (`curl ... | sh -s -- new
+my-project` gives the command directly), or from a clone of the kit
+(`git clone https://github.com/brahm/project-template agent-kit`, then
+`agent-kit/install.sh ...`). Every command can be run again: what is done
+is kept and what is missing is done.
 
 ### What the installer sets up for each agent
 
@@ -196,7 +197,7 @@ done is kept and what is missing is done.
 | Cursor | `AGENTS.md`, `.cursor/rules/` | Writes a rule pointing to it |
 | Others (Aider, Zed, Amp, Jules, ...) | Usually `AGENTS.md`; otherwise point them to it (Aider: `--read AGENTS.md`) | Nothing needed |
 
-On Windows, run it in Git Bash or WSL, with `--copy` instead of links.
+On Windows, run it in WSL ([INSTALL.md](INSTALL.md#windows)).
 Claude Code asks once whether you trust the folder; accept it, or the
 project's allowed scripts keep asking for permission. Only Claude Code
 runs the state report by itself; the other agents run

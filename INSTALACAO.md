@@ -9,8 +9,8 @@ por um script só, o `install.sh`, no seu próprio computador.
 
 ## O que é preciso
 
-- `bash`, `git` e Python 3.11 ou mais novo. No Windows, use o Git Bash ou o
-  WSL.
+- `bash`, `git` e Python 3.11 ou mais novo, no Linux, no macOS, ou no
+  Windows dentro do WSL (veja "Windows", abaixo).
 - A linha de comando do GitHub, o [`gh`](https://cli.github.com), para a
   parte do GitHub (o repositório, o segredo e as regras da `main`). Se ele
   não estiver logado, o instalador roda o `gh auth login` para você, e
@@ -58,20 +58,42 @@ passos à mão.
 
 ## Como pegar o instalador
 
-Ou mantenha uma cópia do kit, que você atualiza com `git pull`:
+Uma linha, num terminal:
 
 ```sh
-git clone https://github.com/brahm/project-template agent-kit
-agent-kit/install.sh --help
+curl -fsSL https://raw.githubusercontent.com/brahm/project-template/main/install.sh | sh
 ```
 
-ou rode sem cópia; ele baixa o kit numa pasta temporária antes:
+Ele confere o `git`, o `bash` e o `python3` (e diz como instalar o que
+faltar), guarda o kit em `~/.agent-kit` (ou `AGENT_KIT_HOME`), atualizando
+se ele já estiver lá, cria o comando `agent-kit` em `~/.local/bin` e
+pergunta o que fazer na pasta atual: começar um projeto novo, colocar o
+kit no projeto que está ali, ou atualizar. Para já dizer o que quer,
+acrescente o comando depois de `sh -s --`:
 
 ```sh
-bash <(curl -fsSL https://raw.githubusercontent.com/brahm/project-template/main/install.sh) --help
+curl -fsSL https://raw.githubusercontent.com/brahm/project-template/main/install.sh | sh -s -- new meu-projeto
 ```
 
-Daqui em diante, `install.sh` quer dizer qualquer uma das duas formas.
+Daqui em diante, `install.sh` quer dizer o comando `agent-kit`, ou o
+`install.sh` de uma cópia do kit (`git clone
+https://github.com/brahm/project-template agent-kit`), se você preferir
+uma.
+
+## Windows
+
+O kit roda no WSL, o Linux de dentro do Windows. Uma vez, no PowerShell:
+
+```powershell
+wsl --install
+```
+
+Reinicie se ele pedir, abra o "Ubuntu" pelo menu Iniciar, instale as
+ferramentas (`sudo apt install git python3`, e o `gh` como manda
+https://cli.github.com) e rode a linha acima lá. Guarde os seus projetos
+na sua pasta do WSL (`cd ~`): em `/mnt/c` eles funcionam, mas mais
+devagar. O Claude Code, o VS Code e os outros agentes abrem pastas do WSL
+direto. O instalador recusa o Git Bash, o MSYS e o Cygwin e explica isso.
 
 ## Um projeto novo
 
@@ -107,7 +129,7 @@ Ele vê que o projeto não foi iniciado e o planeja com você (a skill
 Opções úteis: `--public` para um repositório público, `--github-owner ORG`
 para criá-lo numa organização, `--no-github` para ficar só no seu
 computador, `--summary "uma ferramenta que ..."`, `--tools claude,codex`
-para os agentes que você usa, `--copy` no Windows. `install.sh --help`
+para os agentes que você usa, `--copy` se os links derem problema. `install.sh --help`
 lista todas.
 
 Se algo falhar no meio (sem rede, um erro no token), corrija e rode o
@@ -193,8 +215,8 @@ gravou. `install.sh user --help` lista as opções.
 install.sh update                       # num projeto, ou: install.sh update caminho/do/projeto
 ```
 
-1. Atualiza a sua cópia do kit (`git pull`). Rodando com `bash <(curl
-   ...)`, o kit já é o mais novo.
+1. Atualiza a sua cópia do kit (`git pull` em `~/.agent-kit`, ou na sua
+   cópia).
 2. Se o kit está instalado para o seu usuário, troca as regras e as
    skills dele pela versão nova, mantendo os seus padrões.
 3. Num projeto, compara a versão do kit dele (`docs/kit.md`) com a mais

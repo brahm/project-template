@@ -29,12 +29,104 @@
 #                         from your defaults (install-user.sh), or is asked
 #
 # Every command can be run again: what is done is kept, what is missing is
-# done. Without a copy of the kit beside it (when run with
-# bash <(curl -fsSL .../install.sh)), it fetches the kit first.
-# Needs bash, git, Python 3.11 or later, and for GitHub the CLI gh.
+# done. Needs bash, git, Python 3.11 or later, and for GitHub the CLI gh.
+#
+# In one line, on Linux, macOS or Windows (in WSL), with no copy of the kit:
+#
+#   curl -fsSL https://raw.githubusercontent.com/brahm/project-template/main/install.sh | sh
+#   curl -fsSL .../install.sh | sh -s -- new my-project
+#
+# Run that way, it keeps the kit in ~/.agent-kit (AGENT_KIT_HOME), updating
+# it when it is there, adds the command agent-kit to ~/.local/bin, and then
+# does what the arguments say; with none, it asks what to do here.
+
+# ---------------------------------------------------------------------------
+# The part up to the next line of dashes is POSIX sh: piped to sh, this
+# script has no file and maybe no bash, so it fetches the kit and runs the
+# kit's copy with bash, giving it the terminal for its questions.
+here=
+case $0 in
+    */install.sh|install.sh) [ -f "$0" ] && here=$(cd "$(dirname "$0")" && pwd) ;;
+esac
+if [ -n "$here" ] && [ -f "$here/project-template/docs/kit.md" ]; then
+    [ -n "${BASH_VERSION:-}" ] || exec bash "$0" "$@"
+else
+    set -eu
+    say() { printf '%s\n' "$*"; }
+    die() { printf 'install.sh: %s\n' "$*" >&2; exit 1; }
+    case ${AGENT_KIT_UNAME:-$(uname -s)} in
+        Linux)
+            if grep -qi microsoft /proc/version 2>/dev/null; then
+                case $PWD in /mnt/[a-z]/*) say 'Note: a project under /mnt/c is slower in WSL; one in your WSL home (cd ~) is faster.' ;; esac
+            fi ;;
+        Darwin) ;;
+        MINGW*|MSYS*|CYGWIN*)
+            die 'on Windows, run this in WSL. In PowerShell, once: wsl --install; then open "Ubuntu" from the Start menu and run the same command there.' ;;
+        *) say "Note: $(uname -s) was not tested; going on." ;;
+    esac
+    missing=
+    for tool in git bash python3; do command -v "$tool" >/dev/null 2>&1 || missing="$missing $tool"; done
+    if [ -n "$missing" ]; then
+        if [ "$(uname -s)" = Darwin ]; then hint='brew install git bash python (https://brew.sh), or: xcode-select --install'
+        else hint="sudo apt install git bash python3 (or your system's package manager)"; fi
+        die "missing:$missing. Install it ($hint) and run the same command again."
+    fi
+    kit=${AGENT_KIT_HOME:-$HOME/.agent-kit}
+    url=${AGENT_KIT_URL:-https://github.com/brahm/project-template}
+    if [ -d "$kit/.git" ]; then
+        git -C "$kit" pull -q --ff-only || say "Could not update $kit with git pull; using it as it is."
+    elif [ -e "$kit" ]; then
+        die "$kit exists and is not a copy of the kit; move it, or set AGENT_KIT_HOME to another folder"
+    else
+        say "Fetching the kit into $kit ..."
+        git clone -q --depth 1 "$url" "$kit" || die "could not fetch the kit from $url"
+    fi
+    # The command agent-kit, for next time: agent-kit new NAME, agent-kit update...
+    bin=${AGENT_KIT_BIN:-$HOME/.local/bin}
+    mkdir -p "$bin"
+    printf '#!/bin/sh\nexec bash "%s/install.sh" "$@"\n' "$kit" >"$bin/agent-kit"
+    chmod +x "$bin/agent-kit"
+    case ":$PATH:" in
+        *":$bin:"*) ;;
+        *) say "Added the command agent-kit to $bin, which is not in your PATH: add it (for example in ~/.profile) to type agent-kit next time." ;;
+    esac
+    # The questions need the terminal: stdin is the script itself, or nothing.
+    # (In a subshell: sh leaves at once when the redirection of a builtin fails.)
+    if (true </dev/tty) 2>/dev/null; then has_tty=1; else has_tty=; fi
+    if [ $# -eq 0 ]; then
+        if [ -z "$has_tty" ]; then
+            say "The kit is in $kit. Run: agent-kit new my-project, or agent-kit existing, in the project's folder."
+            exit 0
+        fi
+        if [ -f docs/kit.md ]; then choice=3
+        elif git rev-parse -q --verify HEAD >/dev/null 2>&1 || [ -n "$(ls -A 2>/dev/null | grep -vxE '\.git|\.claude|\.DS_Store')" ]; then choice=2
+        else choice=1; fi
+        say '' "The agent project kit is in $kit. What now, in $PWD?" \
+            '  1) Start a new project' \
+            '  2) Add the kit to the project in this folder (nothing of yours is overwritten)' \
+            '  3) Update the kit, and this project' \
+            '  4) Nothing more for now (next time, type agent-kit)'
+        printf 'Choice [%s]: ' "$choice"
+        read -r answer </dev/tty || answer=
+        case ${answer:-$choice} in
+            1) if [ "$choice" = 1 ]; then set -- new .
+               else
+                   printf 'Name of the new project (a folder made here): '
+                   read -r name </dev/tty || name=
+                   [ -n "$name" ] || die 'no name given'
+                   set -- new "$name"
+               fi ;;
+            2) set -- existing . ;;
+            3) if [ -f docs/kit.md ]; then set -- update .; else set -- update; fi ;;
+            *) exit 0 ;;
+        esac
+    fi
+    if [ -n "$has_tty" ]; then exec bash "$kit/install.sh" "$@" </dev/tty; fi
+    exec bash "$kit/install.sh" "$@"
+fi
+# ---------------------------------------------------------------------------
 
 set -euo pipefail
-KIT_URL=${AGENT_KIT_URL:-https://github.com/brahm/project-template}
 
 say() { printf '%s\n' "$*"; }
 step() { printf '\n==> %s\n' "$*"; }
@@ -47,28 +139,16 @@ confirm() {  # confirm "question" default(y|n): true for yes; the default withou
     [[ "$answer" =~ ^[yYsS] ]]
 }
 
-# The kit: the folder of this script, or a fresh copy when it runs alone.
-KIT=
-here=$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || true)
-if [ -n "$here" ] && [ -d "$here/project-template" ] && [ -f "$here/user-level/install-user.sh" ]; then
-    KIT=$here
-else
-    command -v git >/dev/null || die 'git is not installed'
-    FETCHED=$(mktemp -d)
-    trap 'rm -rf "$FETCHED"' EXIT
-    say "Fetching the kit from $KIT_URL ..."
-    git clone -q --depth 1 "$KIT_URL" "$FETCHED/kit" || die "could not fetch the kit from $KIT_URL"
-    KIT=$FETCHED/kit
-fi
+KIT=$here
 TEMPLATE=$KIT/project-template
 KIT_VERSION=$(sed -nE 's/^\| Kit version \| ([^ ]+) \|$/\1/p' "$TEMPLATE/docs/kit.md")
 
-usage() { sed -n '2,33p' "$KIT/install.sh"; }
+usage() { sed -n '2,42p' "$KIT/install.sh"; }
 [ $# -gt 0 ] || { usage; exit 2; }
 COMMAND=$1; shift
 case "$COMMAND" in
     -h|--help|help) usage; exit 0 ;;
-    user) "$KIT/user-level/install-user.sh" "$@"; exit ;;   # not exec: the fetched kit is removed on exit
+    user) exec "$KIT/user-level/install-user.sh" "$@" ;;
 esac
 
 TARGET= PUBLIC=0 GITHUB=1 RULES=1 USER_STEP=ask GH_OWNER=
@@ -429,8 +509,8 @@ MSG
 
 cmd_update() {
     need_tools
-    # A fetched kit is already the newest; AGENT_KIT_NO_PULL=1 keeps a copy as it is (the tests).
-    if [ -z "${FETCHED:-}" ] && [ -z "${AGENT_KIT_NO_PULL:-}" ] && git -C "$KIT" rev-parse -q --verify HEAD >/dev/null 2>&1; then
+    # AGENT_KIT_NO_PULL=1 keeps the copy as it is (the tests).
+    if [ -z "${AGENT_KIT_NO_PULL:-}" ] && git -C "$KIT" rev-parse -q --verify HEAD >/dev/null 2>&1; then
         step 'The kit'
         if git -C "$KIT" pull -q --ff-only; then
             KIT_VERSION=$(sed -nE 's/^\| Kit version \| ([^ ]+) \|$/\1/p' "$TEMPLATE/docs/kit.md")
