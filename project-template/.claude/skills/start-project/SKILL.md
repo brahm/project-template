@@ -21,6 +21,9 @@ scripts and the other skills need no reading now.
 3. **Fill the placeholders.** If `init-project.sh` is at the root, run it
    with every value as an option so that it asks nothing
    (`./init-project.sh --help` lists them; it deletes itself).
+   *In a project under way* (`install.sh existing`) the code is the brief,
+   what works is `Done`, and you merge the kit into what was kept: one
+   `AGENTS.md` without markers, the template's pages, the `kit-` workflows.
 4. **`docs/goals.md`**: the target and its rules, each rule pointing to a
    decision. **`docs/decisions.md`**: one row per decision the brief
    contains, dated today, status `Current`.
@@ -46,9 +49,8 @@ scripts and the other skills need no reading now.
    `.github/workflows/checks.yml`, the build and test commands in
    `CONTRIBUTING.md`, and the technology's entries in `.gitignore`. They
    must pass on the empty project. Keep `.github/workflows/review.yml`,
-   the automatic review of each pull request; it waits for the owner to
-   add the token of their Claude plan as a secret, so say in the report
-   how (`claude setup-token`, `docs/kit.md`, "The automatic review").
+   the automatic review; if it has no token yet, the report tells the
+   owner to run `scripts/setup-github.sh` (`docs/kit.md`).
 8. **Fit the skills**, as `docs/kit.md` says. The kit's skills are
    written for any technology: do not read them all looking for changes.
    Add a skill for a procedure this project will repeat (running the
@@ -63,6 +65,6 @@ scripts and the other skills need no reading now.
     domain in `docs/brain/glossary.md`, and a note for each subject of the
     brief that will be needed again (the reference, the users, an outside
     service). Run `python3 scripts/dashboard.py --record` and
-    `scripts/check-all.sh`, and commit.
+    `scripts/check-all.sh`, and commit (by pull request if `main` is protected).
 11. **Report** with `report-to-owner`: the plan in a few lines, every
     assumption with its decision id, and the questions still open.

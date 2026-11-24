@@ -315,4 +315,108 @@ has "$(cat "$WORK/second.log")" 'kept yours'
 [ -f "$HOME/.claude/skills/capture-lesson/SKILL.md" ] || fail 'the skills were not copied'
 echo 'ok'
 
+step 'The installer makes a new project, puts it on GitHub and turns the review on'
+# A stand-in for the GitHub CLI: it records what it was asked, keeps the
+# secrets and the ruleset in files, and creates repositories as local bare
+# ones, which git reaches through the url.insteadOf below.
+export FAKE_GH="$WORK/fake-gh"
+mkdir -p "$FAKE_GH/bin" "$FAKE_GH/remote"
+cat >"$FAKE_GH/bin/gh" <<'SH'
+#!/usr/bin/env bash
+echo "gh $*" >>"$FAKE_GH/calls.log"
+case "$1 $2" in
+    'auth status') echo "  - Token scopes: 'repo', 'workflow'" ;;
+    'auth git-credential') ;;
+    'api user') echo ana ;;
+    'config get') echo https ;;
+    'repo view') [ "$3" = --json ] && { echo ana/demo; exit; }; [ -d "$FAKE_GH/remote/$3.git" ] ;;
+    'repo create') git init -q --bare "$FAKE_GH/remote/$3.git" ;;
+    'secret list') cat "$FAKE_GH/secrets" 2>/dev/null || true ;;
+    'secret set') cat >"$FAKE_GH/token"; printf '%s\t2026-11-24\n' "$3" >>"$FAKE_GH/secrets" ;;
+    'api repos/'*) [ -f "$FAKE_GH/ruleset.json" ] && echo 7 || true ;;
+    'api -X')
+        if [ -n "${FAKE_GH_FREE:-}" ]; then
+            echo 'gh: Upgrade to GitHub Pro or make this repository public to enable this feature. (HTTP 403)' >&2; exit 1
+        fi
+        cat >"$FAKE_GH/ruleset.json"; echo "$3 $4" >>"$FAKE_GH/ruleset.log" ;;
+    *) echo "fake gh: unexpected: $*" >&2; exit 1 ;;
+esac
+SH
+chmod +x "$FAKE_GH/bin/gh"
+export PATH="$FAKE_GH/bin:$PATH"
+git config --global url."$FAKE_GH/remote/".insteadOf https://github.com/
+git config --global init.defaultBranch main
+cd "$WORK"
+CLAUDE_CODE_OAUTH_TOKEN=sk-ant-oat01-test-token "$KIT/install.sh" new demo --no-user --summary 'a demo' \
+    </dev/null >"$WORK/new.log" 2>&1 || { cat "$WORK/new.log"; fail 'install.sh new'; }
+[ "$(git -C "$FAKE_GH/remote/ana/demo.git" log --format=%s main)" = "Start from the agent project kit $(sed -nE 's/^\| Kit version \| ([^ ]+) \|$/\1/p' "$KIT/project-template/docs/kit.md")" ] \
+    || fail 'the first commit did not reach the new repository'
+[ ! -e demo/init-project.sh ] && has "$(cat demo/docs/dashboard/config.toml)" 'repo = "ana/demo"' || fail 'the project was not filled'
+has "$(cat demo/.github/CODEOWNERS)" '/.github/ @ana'
+has "$(cat demo/AGENTS.md)" "Ana owns"   # the owner, from the defaults of the user
+[ "$(cat "$FAKE_GH/token")" = sk-ant-oat01-test-token ] || fail 'the token was not saved as the secret'
+! grep -q 'sk-ant' "$FAKE_GH/calls.log" || fail 'the token was passed on a command line'
+python3 - "$FAKE_GH/ruleset.json" <<'PY'
+import json, sys
+r = json.load(open(sys.argv[1]))
+rules = {x['type']: x.get('parameters') for x in r['rules']}
+checks = [c['context'] for c in rules['required_status_checks']['required_status_checks']]
+assert checks == ['Review', 'Backlog, dashboard, pages, records and licences'], checks
+assert rules['pull_request']['require_code_owner_review'] is True
+assert rules['pull_request']['required_approving_review_count'] == 0, 'a personal account cannot approve its own'
+assert r['bypass_actors'] == [{'actor_id': 5, 'actor_type': 'RepositoryRole', 'bypass_mode': 'pull_request'}]
+assert r['conditions']['ref_name']['include'] == ['~DEFAULT_BRANCH']
+PY
+has "$(cat "$FAKE_GH/ruleset.log")" 'POST repos/ana/demo/rulesets'
+# Run again: the secret is kept, the ruleset updated in place.
+"$KIT/install.sh" new demo --no-user </dev/null >"$WORK/again.log" 2>&1 || { cat "$WORK/again.log"; fail 'install.sh new, again'; }
+has "$(cat "$WORK/again.log")" 'already set, kept'
+has "$(tail -n 1 "$FAKE_GH/ruleset.log")" 'PUT repos/ana/demo/rulesets/7'
+# Without rulesets (GitHub Free, private) or with a token that is not one, it says so and goes on.
+rm "$FAKE_GH/ruleset.json"
+out=$(FAKE_GH_FREE=1 CLAUDE_CODE_OAUTH_TOKEN=not-a-token demo/scripts/setup-github.sh --replace-token </dev/null)
+has "$out" 'GitHub Free has no rules for private repositories'
+has "$out" 'Secret CLAUDE_CODE_OAUTH_TOKEN: not saved.'
+[ "$(cat "$FAKE_GH/token")" = sk-ant-oat01-test-token ] || fail 'a token that is not one replaced the secret'
+mkdir -p "$WORK/other" && echo x >"$WORK/other/notes.txt"
+must_fail 'a folder that is not a project of the kit' 'install.sh existing' "$KIT/install.sh" new "$WORK/other" </dev/null
+has "$(cd demo && AGENT_KIT_NO_PULL=1 "$KIT/install.sh" update </dev/null)" 'the newest'
+echo 'ok'
+
+step 'The installer adds the kit to a project under way without overwriting it'
+mkdir -p "$WORK/app/.claude" "$WORK/app/.github/workflows" "$WORK/app/docs"
+cd "$WORK/app"
+git init -q -b main && git remote add origin https://github.com/ana/app.git
+git init -q --bare "$FAKE_GH/remote/ana/app.git"
+echo '# Our rules' >AGENTS.md
+echo 'Be brief.' >CLAUDE.md
+echo '{"permissions": {"allow": ["Bash(npm test)"]}}' >.claude/settings.json
+printf 'node_modules/\n.env\n' >.gitignore
+echo 'name: CI' >.github/workflows/checks.yml
+echo 'Hello {{OWNER}}, from our own templates.' >docs/README.md
+echo '# App' >README.md
+git add -A && git commit -qm 'The app'
+"$KIT/install.sh" existing --no-user </dev/null >"$WORK/existing.log" 2>&1 || { cat "$WORK/existing.log"; fail 'install.sh existing'; }
+[ "$(git branch --show-current)" = agent-kit ] || fail 'the kit is not on a branch of its own'
+has "$(cat AGENTS.md)" '# Our rules'
+has "$(cat AGENTS.md)" '<!-- agent-project-kit: project rules, begin -->'
+has "$(cat CLAUDE.md)" 'Be brief.'
+has "$(cat CLAUDE.md)" '@AGENTS.md'
+has "$(cat .claude/settings.json)" 'Bash(npm test)'
+has "$(cat .claude/settings.json)" 'status.py'
+has "$(cat .gitignore)" 'node_modules/'
+has "$(cat .gitignore)" '.claude/settings.local.json'
+[ "$(cat .github/workflows/checks.yml)" = 'name: CI' ] && [ -f .github/workflows/kit-checks.yml ] || fail 'the workflow of the project'
+[ "$(cat docs/README.md)" = 'Hello {{OWNER}}, from our own templates.' ] || fail 'a file of the project was changed'
+[ "$(cat README.md)" = '# App' ] && [ -f docs/kit.md ] && [ -x scripts/setup-github.sh ] || fail 'the files of the kit'
+has "$(cat docs/dashboard/config.toml)" 'repo = "ana/app"'
+has "$(cat "$WORK/existing.log")" 'Kept yours'
+has "$(python3 scripts/status.py)" 'STATE: NOT STARTED'
+has "$(tail -n 1 "$FAKE_GH/ruleset.log")" 'POST repos/ana/app/rulesets'
+has "$(cat "$FAKE_GH/ruleset.json")" 'Backlog, dashboard, pages, records and licences'   # found in kit-checks.yml
+"$KIT/install.sh" existing --no-user </dev/null >"$WORK/existing2.log" 2>&1 || fail 'install.sh existing, again'
+has "$(cat "$WORK/existing2.log")" 'The kit is already in'
+[ "$(grep -c 'project rules, begin' AGENTS.md)" = 1 ] || fail 'the rules were added twice'
+echo 'ok'
+
 printf '\nThe kit works.\n'
