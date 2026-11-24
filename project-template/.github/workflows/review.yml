@@ -1,9 +1,10 @@
 # Reviews every pull request before it is merged: a model (Claude) reads
 # the change for bugs, security problems and optimisations, and the result
 # is posted as one comment on the pull request, updated on every push. A
-# blocking finding fails this check; make the check "Review" required on
-# main and nothing blocking is merged. Setup, cost and how to turn it off
-# are in docs/kit.md, "The automatic review".
+# blocking finding fails this check. The check stops a merge once it is
+# required on main; a pull request can still edit this file, so
+# .github/CODEOWNERS asks the owner to review any change to it. Setup,
+# cost and how to turn it off are in docs/kit.md, "The automatic review".
 #
 # Needs the repository secret ANTHROPIC_API_KEY (or CLAUDE_CODE_OAUTH_TOKEN).
 # Without it, and on drafts, the review is skipped with a notice and the
@@ -45,11 +46,22 @@ jobs:
       - uses: actions/checkout@v5
         if: steps.key.outputs.present == 'true'
         with:
-          fetch-depth: 0    # the review compares with the base branch
+          fetch-depth: 0               # the review compares with the base branch
+          persist-credentials: false   # no token left in .git/config for the model to read
 
-      # The model only reads: git and the files of the checkout. Posting the
-      # comment and failing the check are done by the steps after it, so
-      # that nothing written in the pull request can steer them.
+      # The model gets the change as files, and no shell: it reads only the
+      # checkout. Posting the comment and failing the check are done by the
+      # steps after it, so that nothing written in the pull request can
+      # steer them.
+      - name: Prepare the change
+        if: steps.key.outputs.present == 'true'
+        env:
+          BASE: ${{ github.base_ref }}
+        run: |
+          mkdir -p .review
+          git diff "origin/$BASE...HEAD" >.review/change.diff
+          git log --format='%h %s%n%n%b' "origin/$BASE..HEAD" >.review/commits.txt
+
       - name: Review the change
         id: review
         if: steps.key.outputs.present == 'true'
@@ -60,13 +72,13 @@ jobs:
           github_token: ${{ github.token }}
           prompt: |
             You review pull request #${{ github.event.pull_request.number }} of ${{ github.repository }} before it is merged.
-            The change is `git diff origin/${{ github.base_ref }}...HEAD`.
+            The change is in .review/change.diff, and its commit messages in .review/commits.txt.
 
             1. Read AGENTS.md, and in docs/engineering.md the sections "Reviewing a change" and
                "Security and privacy". Read the pages of docs/specs and the decisions of
                docs/decisions.md that the change or its files cite.
             2. Read the diff, and each changed file whole where the diff alone does not show
-               enough to judge it.
+               enough to judge it. You have no shell: read files, and search them.
             3. Look for:
                - bugs: wrong logic, a failure not handled, an empty, limit or error case missed,
                  an acceptance criterion with no test, a test removed or loosened;
@@ -91,10 +103,12 @@ jobs:
 
             Write the summary and every finding in {{OWNER_LANGUAGE}}. The summary says in one to
             three sentences what the change does and whether it can be merged.
-          # Read-only tools, and the shape of the answer that
-          # scripts/review-report.py reads. Add --model to choose the model.
+          # Reading and searching inside the checkout only, and the shape of
+          # the answer that scripts/review-report.py reads. Add --model to
+          # choose the model.
           claude_args: |
-            --allowedTools "Read,Grep,Glob,Bash(git diff:*),Bash(git log:*),Bash(git show:*)"
+            --allowedTools "Read(./**),Grep,Glob"
+            --disallowedTools "Bash,Write,Edit,MultiEdit,NotebookEdit,WebFetch,WebSearch,Read(//proc/**),Read(//etc/**),Read(//tmp/**),Read(//root/**),Read(//run/**),Read(//var/**)"
             --json-schema '{"type":"object","properties":{"summary":{"type":"string"},"findings":{"type":"array","items":{"type":"object","properties":{"severity":{"type":"string","enum":["blocking","should-fix","suggestion"]},"category":{"type":"string","enum":["bug","security","performance","rules"]},"file":{"type":"string"},"line":{"type":"integer","minimum":1},"problem":{"type":"string"},"fix":{"type":"string"}},"required":["severity","category","file","problem","fix"]}}},"required":["summary","findings"]}'
 
       - name: Write the comment
@@ -103,11 +117,25 @@ jobs:
         env:
           RESULT: ${{ steps.review.outputs.structured_output }}
           COMMIT: ${{ github.event.pull_request.head.sha }}
+          BASE: ${{ github.base_ref }}
+          # Their values must never reach the comment: the script refuses it.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           printf '%s' "$RESULT" >"$RUNNER_TEMP/review.json"
+          # The script of the base branch judges the pull request, so that
+          # the pull request cannot change it. Only the pull request that
+          # adds the review has none on its base, and uses its own.
+          if ! git show "origin/$BASE:scripts/review-report.py" >"$RUNNER_TEMP/review-report.py" 2>/dev/null; then
+            echo '::warning::The base branch has no scripts/review-report.py yet: using the copy in this pull request.'
+            cp scripts/review-report.py "$RUNNER_TEMP/review-report.py"
+          fi
           status=0
-          python3 scripts/review-report.py "$RUNNER_TEMP/review.json" --out "$RUNNER_TEMP/review.md" \
-              --repo "$GITHUB_REPOSITORY" --commit "$COMMIT" || status=$?
+          python3 "$RUNNER_TEMP/review-report.py" "$RUNNER_TEMP/review.json" --out "$RUNNER_TEMP/review.md" \
+              --repo "$GITHUB_REPOSITORY" --commit "$COMMIT" \
+              --secret-env ANTHROPIC_API_KEY --secret-env CLAUDE_CODE_OAUTH_TOKEN --secret-env GITHUB_TOKEN \
+              || status=$?
           echo "status=$status" >>"$GITHUB_OUTPUT"
           cat "$RUNNER_TEMP/review.md" >>"$GITHUB_STEP_SUMMARY"
 

@@ -16,7 +16,15 @@ skill).
   `ANTHROPIC_API_KEY`, and is skipped with a notice without it.
   `docs/kit.md` says how to turn it on and make it required;
   `docs/engineering.md`, `close-task-set` and `start-project` say what
-  the agent does with it.
+  the agent does with it. The model gets the change as files, reads only
+  the checkout, which keeps no token, and has no shell; the copy of the
+  script on the base branch judges the result, neutralises links, images
+  and code fences, and withholds a result that holds a secret; and
+  `init-project.sh` writes `.github/CODEOWNERS` so that a change to the
+  review waits for the owner.
+* Fixed: `init-project.sh` checks the dashboard language, the time zone,
+  the repository and the licence before it changes any file, so that a
+  bad value no longer leaves the project half filled.
 
 ## Changes in 1.2.0 (2026-11-17)
 

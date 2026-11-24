@@ -256,9 +256,11 @@ O que você vai olhar, além dos relatórios:
   atualizado a cada push: aprovada, aprovada com pontos para ler, ou
   bloqueada, com o arquivo, a linha e a correção de cada apontamento.
   Para ligar, adicione o segredo `ANTHROPIC_API_KEY` ao repositório
-  (Settings > Secrets and variables > Actions) e torne obrigatória a
-  verificação `Review` na `main` (`docs/kit.md` do modelo, "The automatic
-  review"). Sem o segredo, a revisão é pulada com um aviso.
+  (Settings > Secrets and variables > Actions), torne obrigatória a
+  verificação `Review` na `main` e ligue "Require review from Code
+  Owners", para que um pull request não consiga desligar a revisão para
+  si mesmo (`docs/kit.md` do modelo, "The automatic review"). Sem o
+  segredo, a revisão é pulada com um aviso.
 - **Os registros**: `docs/decisions.md`, `docs/backlog/deferred.tsv`,
   `docs/project-log.md`, `docs/lessons.md` e `HISTORY.md`.
 

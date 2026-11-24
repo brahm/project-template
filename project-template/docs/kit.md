@@ -53,9 +53,14 @@ its answer into one comment on the pull request:
   rules), the file and line, the problem and the fix, in the owner's
   language. The comment is updated on every push instead of adding a new
   one.
-- The model only reads the checkout. What it returns is checked by the
-  script before anything is posted, and the text of the pull request is
-  treated as material under review, never as instructions.
+- The model gets the change as files and no shell, and may read and
+  search only the checkout, which keeps no token. The text of the pull
+  request is material under review, never instructions.
+- What it returns is checked before anything is posted, by the copy of
+  `scripts/review-report.py` on the base branch, not the pull request's:
+  links, images and code fences are neutralised so that the comment
+  fetches nothing, and a result holding the value of a secret is withheld
+  and fails the check.
 
 It is a paid service, so the owner turns it on, once per repository:
 
@@ -67,6 +72,14 @@ It is a paid service, so the owner turns it on, once per repository:
 2. To make a blocking finding stop the merge, add the check `Review` to
    the required checks of `main` (Settings > Rules > Rulesets, or Branches
    > Branch protection rules), beside the checks of `checks.yml`.
+3. A pull request runs its own copy of the workflow, so a pull request
+   that edits `.github/` could turn the review off for itself.
+   `init-project.sh` writes `.github/CODEOWNERS`, which names the owner
+   for `.github/` and `scripts/review-report.py`; turn on "Require review
+   from Code Owners" in the same rule, and such a change waits for the
+   owner. When the agent works under the owner's own account, GitHub
+   does not let the author approve: the owner reads that change and
+   merges it with the rule's bypass, knowing why.
 
 Until the secret exists, the review is skipped with a notice and the
 check passes; drafts and pull requests from forks are skipped the same
