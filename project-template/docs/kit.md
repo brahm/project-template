@@ -8,7 +8,7 @@ project, and how the project and the template stay in step.
 | | |
 | --- | --- |
 | Template | <https://github.com/brahm/project-template>, folder `project-template` |
-| Kit version | 1.4.0 |
+| Kit version | 1.4.1 |
 
 ## How the pieces fit
 
@@ -65,13 +65,24 @@ its answer into one comment on the pull request:
   fetches nothing, and a result holding the value of a secret is withheld
   and fails the check.
 
-It is a paid service, so the owner turns it on, once per repository:
+It runs on the owner's Claude subscription, so the owner turns it on,
+once per repository:
 
-1. Create an API key in the [Claude Console](https://console.anthropic.com)
-   and add it as the repository secret `ANTHROPIC_API_KEY` (Settings >
-   Secrets and variables > Actions). With a Claude subscription,
-   `claude setup-token` gives a token to add as `CLAUDE_CODE_OAUTH_TOKEN`
-   instead.
+1. Give the workflow the subscription's token. On a computer where
+   Claude Code is installed, run `claude setup-token`, sign in with the
+   account of the Claude Pro or Max plan in the browser it opens, and
+   copy the token it prints. In the repository, add it under Settings >
+   Secrets and variables > Actions > New repository secret, with the
+   name `CLAUDE_CODE_OAUTH_TOKEN`. The reviews then count against the
+   plan's usage, like any Claude Code session, and cost nothing more.
+   The token lasts about a year; when the reviews start failing to sign
+   in, run the command again and replace the secret.
+
+   An organisation that pays for the API by use can add an API key from
+   the [Claude Console](https://console.anthropic.com) as the secret
+   `ANTHROPIC_API_KEY` instead; with both set, the API key is used.
+   Neither value can reach the comment: a result that holds it is
+   withheld.
 2. To make a blocking finding stop the merge, add the check `Review` to
    the required checks of `main` (Settings > Rules > Rulesets, or Branches
    > Branch protection rules), beside the checks of `checks.yml`.
@@ -84,10 +95,10 @@ It is a paid service, so the owner turns it on, once per repository:
    does not let the author approve: the owner reads that change and
    merges it with the rule's bypass, knowing why.
 
-Until the secret exists, the review is skipped with a notice and the
+Until one of the secrets exists, the review is skipped with a notice and the
 check passes; drafts and pull requests from forks are skipped the same
-way. Each run costs the tokens of reading the change and the pages it
-cites. To choose the model, add `--model` to `claude_args` in the
+way. Each run uses the tokens of reading the change and the pages it
+cites, from the plan's usage. To choose the model, add `--model` to `claude_args` in the
 workflow; to stop the reviews, delete the workflow.
 
 What the agent does with the comment is in the `close-task-set` skill: a

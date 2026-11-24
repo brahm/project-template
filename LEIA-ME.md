@@ -59,8 +59,8 @@ certo, e com uma regra só quando nada mais serve.
   escreveu a mudança lê o código em busca de bugs, problemas de segurança
   e otimizações, e comenta no pull request o que precisa ser corrigido,
   ou que tudo passou. Um apontamento bloqueante faz a verificação falhar,
-  e o merge não acontece por engano. Precisa da sua chave de API como
-  segredo do repositório.
+  e o merge não acontece por engano. Roda no seu plano Claude Pro ou Max,
+  com o token do `claude setup-token` como segredo do repositório.
 - **O que o projeto aprende fica guardado e é achado em segundos.** O
   Second Brain (`docs/brain/`) tem uma nota em Markdown por assunto: como
   uma parte funciona, os fatos do domínio, as manias de um serviço, a
@@ -265,8 +265,10 @@ O que você vai olhar, além dos relatórios:
 - **A revisão automática**: um comentário em cada pull request,
   atualizado a cada push: aprovada, aprovada com pontos para ler, ou
   bloqueada, com o arquivo, a linha e a correção de cada apontamento.
-  Para ligar, adicione o segredo `ANTHROPIC_API_KEY` ao repositório
-  (Settings > Secrets and variables > Actions), torne obrigatória a
+  Para ligar, rode `claude setup-token` e adicione o token que ele mostra
+  ao repositório (Settings > Secrets and variables > Actions) como o
+  segredo `CLAUDE_CODE_OAUTH_TOKEN`: as revisões passam a usar o seu
+  plano Claude Pro ou Max, sem custo a mais. Depois torne obrigatória a
   verificação `Review` na `main` e ligue "Require review from Code
   Owners", para que um pull request não consiga desligar a revisão para
   si mesmo (`docs/kit.md` do modelo, "The automatic review"). Sem o
@@ -287,7 +289,7 @@ O `AGENTS.md` da raiz tem as regras para trabalhar no kit, e o
 `HISTORY.md` as versões. Depois de uma mudança, `tools/build-kit.py`
 refaz os .zip das skills e a cópia da revisão automática do próprio kit
 (os pull requests do kit são revisados como os de um projeto, depois que o
-secret `ANTHROPIC_API_KEY` for cadastrado no repositório do kit), e `tools/test-kit.sh` cria um projeto a partir
+secret `CLAUDE_CODE_OAUTH_TOKEN` for cadastrado no repositório do kit), e `tools/test-kit.sh` cria um projeto a partir
 do modelo numa pasta temporária, roda as verificações e testa cada
 proteção contra o erro que ela existe para pegar. O CI roda o mesmo
 teste.

@@ -5,6 +5,15 @@ from the template reads this file to learn what is newer than its own kit
 version (`docs/kit.md` in the project, and the `update-from-template`
 skill).
 
+## Changes in 1.4.1 (2026-11-24)
+
+* Changed: The automatic review runs on the owner's Claude Pro or Max
+  plan. The secret `CLAUDE_CODE_OAUTH_TOKEN`, made by `claude
+  setup-token`, is the way `docs/kit.md`, `README.md`, `LEIA-ME.md`,
+  `start-project`, `init-project.sh` and the workflow's notice now give
+  to turn it on, step by step. An API key, `ANTHROPIC_API_KEY`, still
+  works as the alternative for organisations that pay the API by use.
+
 ## Changes in 1.4.0 (2026-11-24)
 
 * Added: The Second Brain, `docs/brain/`: what the project knows, one

@@ -6,8 +6,10 @@
 # .github/CODEOWNERS asks the owner to review any change to it. Setup,
 # cost and how to turn it off are in docs/kit.md, "The automatic review".
 #
-# Needs the repository secret ANTHROPIC_API_KEY (or CLAUDE_CODE_OAUTH_TOKEN).
-# Without it, and on drafts, the review is skipped with a notice and the
+# Needs the repository secret CLAUDE_CODE_OAUTH_TOKEN, made by
+# `claude setup-token` from the owner's Claude Pro or Max subscription.
+# ANTHROPIC_API_KEY, an API key paid by use, works instead; with both, the
+# API key is used. Without either, and on drafts, the review is skipped with a notice and the
 # check passes. GitHub gives no secrets to pull requests from forks, so
 # those are skipped too.
 name: Review
@@ -40,7 +42,7 @@ jobs:
         run: |
           echo "present=$HAS_KEY" >>"$GITHUB_OUTPUT"
           if [ "$HAS_KEY" != true ]; then
-            echo '::notice::Automatic review skipped: the secret ANTHROPIC_API_KEY is not set, or this pull request comes from a fork (docs/kit.md).'
+            echo '::notice::Automatic review skipped: the secret CLAUDE_CODE_OAUTH_TOKEN is not set (claude setup-token), or this pull request comes from a fork (docs/kit.md).'
           fi
 
       - uses: actions/checkout@v5
