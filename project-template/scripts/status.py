@@ -156,6 +156,9 @@ def digest():
         last = git('log', '-1', '--format=%cs %s').strip()
         out.append(f'Git: branch {branch}' + (f', {dirty} files changed and not committed' if dirty else '')
                    + (f'; last commit {short(last)}' if last else '') + '.')
+    notes = [p for p in (ROOT / 'docs' / 'brain').glob('*.md') if p.name != 'README.md']
+    out.append(f'Second Brain: {len(notes)} notes in docs/brain. Before a task: '
+               '`python3 scripts/brain.py find WORDS`.')
     out.append('Rules: AGENTS.md. Its skills apply by moment (rule 2); the owner does not name them.')
     return out
 

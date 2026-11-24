@@ -2,6 +2,7 @@
   "permissions": {
     "allow": [
       "Bash(python3 scripts/status.py *)",
+      "Bash(python3 scripts/brain.py *)",
       "Bash(python3 scripts/dashboard.py *)",
       "Bash(python3 scripts/check-backlog.py *)",
       "Bash(python3 scripts/check-docs.py *)",
@@ -16,6 +17,16 @@
           {
             "type": "command",
             "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/status.py\" 2>&1 || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/scripts/brain.py\" nudge 2>/dev/null || true"
           }
         ]
       }

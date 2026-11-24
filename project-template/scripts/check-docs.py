@@ -21,7 +21,8 @@ follows the link. This script fails on:
 
 The records checked for ids are the pages an agent writes as it works:
 goals, roadmap, architecture, verification, the project log, the
-specifications, the lessons, HISTORY.md and the TSV registers. Pages that
+specifications, the notes of the Second Brain, the lessons, HISTORY.md
+and the TSV registers. Pages that
 only show the form of an id as an example (the writing style, the skills)
 are not checked for ids.
 """
@@ -157,6 +158,9 @@ def check_ids(problems):
     specs = ROOT / 'docs' / 'specs'
     if specs.is_dir():
         pages += [p for p in sorted(specs.glob('*.md')) if p.name != 'README.md']
+    brain = ROOT / 'docs' / 'brain'
+    if brain.is_dir():
+        pages += [p for p in sorted(brain.glob('*.md')) if p.name != 'README.md']
     for page in pages:
         if not page.exists():
             continue

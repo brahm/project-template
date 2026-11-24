@@ -16,6 +16,7 @@ person.
 | [inventory](inventory/README.md) | Every item of the target, with its scope, status and phase |
 | [backlog](backlog/README.md) | What was left undone, why, and when it comes back |
 | [project-log.md](project-log.md) | The story of the project: each decision, why it was taken and what followed |
+| [brain](brain/README.md) | What the project knows, one note per subject, and how to find it: `python3 scripts/brain.py find WORDS` |
 | [lessons.md](lessons.md) | What went wrong, and the check or the rule that now prevents it |
 | [dashboard](dashboard/README.md) | Where the project stands, how the numbers are worked out and how to update them |
 | [writing-style.md](writing-style.md) | How documentation, comments, commit messages and reports are written |

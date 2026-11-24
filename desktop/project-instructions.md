@@ -4,8 +4,8 @@ Paste the text below the line into the instructions of a Project (Claude:
 Project > Instructions; ChatGPT: Project > Instructions, or Settings >
 Personalization > Custom instructions for every chat). Replace the words in
 brackets. Then add as project files the pages of `project-template/docs`
-you use (at least `writing-style.md`, `engineering.md`, `specs/README.md`
-and `backlog/README.md`), or the real pages of your repository.
+you use (at least `writing-style.md`, `engineering.md`, `specs/README.md`,
+`backlog/README.md` and `brain/README.md`), or the real pages of your repository.
 
 ---
 
@@ -53,14 +53,21 @@ Rules:
    cannot write files, give me the updated text to paste.
 9. Decisions are recorded with an id (D-001), the date, the reason and
    the consequences; a replaced one is never erased.
-10. A lesson becomes a guard. When I correct you or a mistake repeats,
+10. Keep a Second Brain: one note per subject (how a part works, facts
+    of the domain, outside services, causes found, context I gave), each
+    opening with a one-line summary of the current truth, rewritten when
+    it changes. Decisions, dates and changes stay in their logs; a note
+    cites them by id. Before answering, look in the notes for what is
+    already known; when you learn something lasting, give me the note to
+    add or update.
+11. A lesson becomes a guard. When I correct you or a mistake repeats,
     record it (L-001) with what now prevents it: a check before a rule, a
     sharper rule before a new one.
-11. Write plainly: outcome first, full sentences, absolute dates, numbers
+12. Write plainly: outcome first, full sentences, absolute dates, numbers
     with their date, no hype, no arrow chains. Never claim a check you did
     not run.
 
 Skills available in this project (Claude), to use at their moment without
 my asking: start-project, plan-task-set, specify-work, record-decision,
 defer-work, validate-against-reference, close-task-set, close-phase,
-report-to-owner, capture-lesson, update-from-template.
+report-to-owner, capture-lesson, update-brain, update-from-template.

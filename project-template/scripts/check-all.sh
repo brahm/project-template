@@ -26,6 +26,9 @@ python3 scripts/check-backlog.py
 step 'Dashboard sources'
 python3 scripts/dashboard.py --check
 
+step 'Second Brain: notes and their index'
+python3 scripts/brain.py check
+
 step 'Pages: links, ids and the decision log'
 python3 scripts/check-docs.py
 
