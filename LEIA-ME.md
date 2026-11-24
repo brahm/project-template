@@ -12,8 +12,29 @@ e português do Brasil).
 
 ## Começo rápido
 
-Abra o Claude Code na pasta do projeto (uma pasta vazia, para um projeto
-novo) e cole:
+Num terminal, no Linux, no macOS ou no Windows (no WSL), na pasta onde
+você guarda os seus projetos, ou no projeto que você já tem:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/brahm/project-template/main/install.sh | sh
+```
+
+Ele guarda o kit em `~/.agent-kit`, cria o comando `agent-kit` e pergunta
+o que fazer: começar um projeto novo (preenche o modelo com os seus
+padrões, cria um repositório privado no GitHub, envia o primeiro commit,
+salva o token do seu plano Claude Pro ou Max para a revisão automática e
+protege a `main`), colocar o kit no projeto daquela pasta sem sobrescrever
+nada, ou atualizar. Da próxima vez, digite `agent-kit new meu-projeto`,
+`agent-kit existing` ou `agent-kit update`. Depois:
+
+```sh
+cd meu-projeto && claude                       # ou codex, pi, gemini...
+```
+
+e diga ao agente, com as suas palavras, o que você quer construir. Ele faz
+o resto e relata o que assumiu.
+
+Ou a partir de um prompt: abra o Claude Code na pasta do projeto e cole
 
 ```text
 Instale o agent project kit nesta pasta. Clone
@@ -21,32 +42,11 @@ https://github.com/brahm/project-template numa pasta temporária e siga o
 INSTALL-AGENT.md dele. O que eu quero construir: ...
 ```
 
-Ele instala o kit (projeto novo ou em andamento), coloca no GitHub e
-começa o projeto na mesma conversa. O único passo que fica com você é
-rodar `scripts/setup-github.sh` num terminal seu, que salva o token do seu
-plano Claude para a revisão automática sem ele passar pelo chat
-([INSTALACAO.md](INSTALACAO.md#a-partir-de-um-prompt-o-mais-simples)).
-
-Ou sem agente: um comando, no seu computador, com `git`, Python 3.11+ e o `gh` (a linha
-de comando do GitHub) instalados:
-
-```sh
-bash <(curl -fsSL https://raw.githubusercontent.com/brahm/project-template/main/install.sh) new meu-projeto
-```
-
-Ele cria `meu-projeto` a partir do modelo, cria um repositório privado no
-GitHub, envia o primeiro commit, salva o token do seu plano Claude Pro ou
-Max para a revisão automática e protege a `main`. Depois:
-
-```sh
-cd meu-projeto && claude                       # ou codex, pi, gemini...
-```
-
-e diga ao agente, com as suas palavras, o que você quer construir. Ele faz
-o resto e relata o que assumiu. Para um projeto que já está em andamento,
-use `existing` no lugar de `new meu-projeto`, na pasta dele. O manual,
-[INSTALACAO.md](INSTALACAO.md), tem todos os casos, as opções e como
-atualizar.
+O agente roda o instalador e começa o projeto na mesma conversa; o único
+passo que fica com você é rodar `scripts/setup-github.sh` num terminal
+seu, para que o token nunca passe pelo chat. O manual,
+[INSTALACAO.md](INSTALACAO.md), tem todos os casos, as opções, o Windows e
+como atualizar.
 
 ## O que vem no pacote
 
@@ -179,11 +179,11 @@ resumo:
 | `install.sh github [PASTA]` | Só a parte do GitHub, `scripts/setup-github.sh`: o segredo `CLAUDE_CODE_OAUTH_TOKEN` e o ruleset da `main` |
 | `install.sh user` | Só as regras e skills para o seu usuário, `user-level/install-user.sh` |
 
-Rode a partir de uma cópia do kit (`git clone
+Rode com a linha do começo rápido, que guarda o kit em `~/.agent-kit` e
+cria o comando `agent-kit` (`curl ... | sh -s -- new meu-projeto` já dá o
+comando direto), ou a partir de uma cópia do kit (`git clone
 https://github.com/brahm/project-template agent-kit`, depois
-`agent-kit/install.sh ...`), ou sozinho com `bash <(curl -fsSL
-https://raw.githubusercontent.com/brahm/project-template/main/install.sh)
-...`, que baixa o kit antes. Todo comando pode ser rodado de novo: o que
+`agent-kit/install.sh ...`). Todo comando pode ser rodado de novo: o que
 já foi feito é mantido e o que falta é feito.
 
 ### O que o instalador prepara para cada agente
@@ -201,7 +201,7 @@ O `init-project.sh`, que o instalador roda, prepara cada agente
 | Cursor | `AGENTS.md` e `.cursor/rules/` | Cria uma regra apontando para ele |
 | Outros (Aider, Zed, Amp, Jules...) | Em geral `AGENTS.md`; se não, aponte para ele (Aider: `--read AGENTS.md`) | Nada |
 
-No Windows, rode no Git Bash ou no WSL, com `--copy` em vez de links. O
+No Windows, rode no WSL ([INSTALACAO.md](INSTALACAO.md#windows)). O
 Claude Code pergunta uma vez se você confia na pasta; aceite, senão os
 scripts liberados do projeto continuam pedindo permissão. Só o Claude Code
 roda o relatório de estado sozinho; os outros agentes rodam

@@ -383,6 +383,22 @@ must_fail 'a folder that is not a project of the kit' 'install.sh existing' "$KI
 has "$(cd demo && AGENT_KIT_NO_PULL=1 "$KIT/install.sh" update </dev/null)" 'the newest'
 echo 'ok'
 
+step 'One line, curl ... | sh: the kit in ~/.agent-kit, the command agent-kit, then the project'
+# Piped to sh (dash on Ubuntu), the script has no file: it fetches the kit
+# (here, this repository's last commit) and runs that copy with bash.
+mkdir -p "$WORK/piped" && cd "$WORK/piped"
+export AGENT_KIT_URL="$KIT" AGENT_KIT_HOME="$WORK/kit-home" AGENT_KIT_BIN="$WORK/kit-bin"
+sh -s -- new tool --no-github --no-user --summary 'a tool from one line' <"$KIT/install.sh" >"$WORK/piped.log" 2>&1 \
+    || { cat "$WORK/piped.log"; fail 'install.sh piped to sh'; }
+[ -f "$AGENT_KIT_HOME/install.sh" ] && [ -x "$AGENT_KIT_BIN/agent-kit" ] || fail 'the kit or the command agent-kit'
+[ -f tool/AGENTS.md ] && [ ! -e tool/init-project.sh ] || fail 'the project made from one line'
+has "$("$AGENT_KIT_BIN/agent-kit" --help)" 'install.sh new NAME'
+# Again, with nothing to do and no terminal: the kit is updated and it says what to type.
+has "$(sh <"$KIT/install.sh" 2>&1)" 'Run: agent-kit new my-project'
+must_fail 'Windows without WSL' 'run this in WSL' env AGENT_KIT_UNAME=MINGW64_NT-10.0 sh -s <"$KIT/install.sh"
+unset AGENT_KIT_URL AGENT_KIT_HOME AGENT_KIT_BIN
+echo 'ok'
+
 step 'An agent installs in the folder it was opened in (INSTALL-AGENT.md)'
 # What Claude Code leaves in a new folder, and an empty repository on another branch.
 mkdir -p "$WORK/here/.claude" && cd "$WORK/here"

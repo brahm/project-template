@@ -5,6 +5,20 @@ from the template reads this file to learn what is newer than its own kit
 version (`docs/kit.md` in the project, and the `update-from-template`
 skill).
 
+## Changes in 1.5.2 (2026-11-24)
+
+* Added: Installing in one line, `curl -fsSL
+  https://raw.githubusercontent.com/brahm/project-template/main/install.sh
+  | sh`, on Linux, macOS and Windows in WSL. The start of `install.sh` is
+  POSIX sh: piped, it checks the tools, keeps the kit in `~/.agent-kit`
+  (updated when it is there), adds the command `agent-kit` to
+  `~/.local/bin`, and runs the kit's copy with bash and the terminal for
+  its questions; with no arguments it asks whether to start a new project,
+  add the kit to the one in the folder, or update. It refuses Git Bash,
+  MSYS and Cygwin with the steps to WSL. `README.md`, `LEIA-ME.md`,
+  `INSTALL.md` and `INSTALACAO.md` lead with it, and have a section on
+  Windows.
+
 ## Changes in 1.5.1 (2026-11-24)
 
 * Added: Installing from a prompt. Pasted in a coding agent opened in the
