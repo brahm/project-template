@@ -1,0 +1,4 @@
+# Changes to the workflows and to the script that judges the automatic review
+# need the review of the owner (project-template/docs/kit.md, "The automatic review").
+/.github/ @brahm
+/project-template/scripts/review-report.py @brahm

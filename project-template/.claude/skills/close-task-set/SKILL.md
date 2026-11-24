@@ -24,7 +24,7 @@ whole life of the project.
 6. **Second Brain**: the notes of the subjects you touched still say the
    truth, and what this work taught is written (`update-brain`).
 7. **Dashboard**: run
-   `python3 scripts/dashboard.py --record --artifact /tmp/dashboard.html`,
+   `python3 scripts/dashboard.py --record --artifact _site/dashboard.html`,
    commit `docs/dashboard/history.tsv`, `changes.tsv` and `snapshot.tsv`.
    If the owner has a hosted page (see `docs/dashboard/README.md`),
    republish the file **at the same address**; never create a second page.

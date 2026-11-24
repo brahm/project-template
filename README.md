@@ -280,7 +280,9 @@ your user files, run `install-user.sh --replace-skills` again.
 
 `AGENTS.md` at the root has the rules for working on the kit, and
 `HISTORY.md` its versions. After a change, `tools/build-kit.py` rebuilds
-the skill zips and `tools/test-kit.sh` makes a project from the template
+the skill zips and the kit's own copy of the automatic review (its pull
+requests are reviewed like a project's, once the secret
+`ANTHROPIC_API_KEY` is set on the kit's repository), and `tools/test-kit.sh` makes a project from the template
 in a temporary folder, runs its checks, and tries each guard on the
 mistake it exists for. The CI runs the same test.
 

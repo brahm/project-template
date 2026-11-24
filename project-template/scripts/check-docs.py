@@ -86,10 +86,22 @@ def rel(path):
     return path.relative_to(ROOT).as_posix()
 
 
+def read(path):
+    """The text of a file, or None when it is not UTF-8 (a binary file, or another encoding)."""
+    try:
+        return path.read_text(encoding='utf-8')
+    except UnicodeDecodeError:
+        return None
+
+
 def check_links(problems):
     """A link to a file of the repository must lead to a file that exists."""
     for page in files({'.md'}):
-        text = without_code(page.read_text(encoding='utf-8'))
+        text = read(page)
+        if text is None:
+            problems.append(f'{rel(page)}: not UTF-8, so its links cannot be checked')
+            continue
+        text = without_code(text)
         for n, line in enumerate(text.splitlines(), start=1):
             for target in LINK.findall(line):
                 if re.match(r'[a-z][a-z0-9+.-]*:|#|<', target, re.I):
@@ -179,7 +191,10 @@ def check_placeholders(problems):
     if (ROOT / 'init-project.sh').exists():
         return
     for page in files({'.md', '.tsv', '.toml', '.py', '.sh', '.yml', '.yaml', '.json'}):
-        for n, line in enumerate(page.read_text(encoding='utf-8').splitlines(), start=1):
+        text = read(page)
+        if text is None:
+            continue                            # not text: no placeholder to fill
+        for n, line in enumerate(text.splitlines(), start=1):
             if PLACEHOLDER.search(line):
                 problems.append(f'{rel(page)}:{n}: a placeholder of the template is left: '
                                 f'{PLACEHOLDER.search(line).group(0)}')

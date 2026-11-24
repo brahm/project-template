@@ -20,11 +20,11 @@ A set of tasks is a pull request, a phase or a thread of work. Before its
 last commit:
 
 1. Bring the sources up to date (next section).
-2. Run `python3 scripts/dashboard.py --record --artifact /tmp/dashboard.html`.
+2. Run `python3 scripts/dashboard.py --record --artifact _site/dashboard.html`.
    `--record` writes today's row in [`history.tsv`](history.tsv), the
    changes of status in `changes.tsv` and the new `snapshot.tsv`; commit
    the three with the rest of the change.
-3. If the owner has a hosted page, publish `/tmp/dashboard.html` to it **at
+3. If the owner has a hosted page, publish `_site/dashboard.html` to it **at
    the same address**. With a claude.ai Artifact: read the address first,
    then publish the file with `url` set to it. Never publish without the
    address, which would create a second page.
@@ -48,8 +48,8 @@ three are kept up to date together.
 | [`history.tsv`](history.tsv), [`snapshot.tsv`](snapshot.tsv), [`changes.tsv`](changes.tsv) | One row per recorded day; the status of everything at the last record; what changed between records | Only through `--record` |
 
 The pull requests come from GitHub (`gh api search/issues`) when `repo` is
-set and `gh` answers; otherwise the page lists the merges of the local git
-history.
+set and `gh` answers; otherwise the page lists the pull requests of the local git history,
+merged with a merge commit or squashed into one commit ("Title (#N)").
 
 ## What was just done, and what comes next
 

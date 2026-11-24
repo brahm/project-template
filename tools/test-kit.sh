@@ -144,6 +144,10 @@ echo 'A {{'PROJECT_NAME'}} left behind.' >>docs/roadmap.md
 must_fail 'a placeholder left after the start' 'a placeholder of the template is left' python3 scripts/check-docs.py
 sed -i '$d' docs/roadmap.md
 python3 scripts/check-docs.py
+# A page that is not UTF-8 is named, not a crash.
+printf 'caf\xe9\n' >latin1.md
+must_fail 'a page that is not UTF-8' 'latin1.md: not UTF-8' python3 scripts/check-docs.py
+rm latin1.md
 # A phase with open backlog cannot close.
 must_fail 'closing a phase with open backlog' 'still open' python3 scripts/check-backlog.py --phase P1
 # Notes in the code that would send an agent after work nobody recorded or that is finished.
@@ -170,6 +174,12 @@ has "$state" 'Lessons without a guard yet: L-001'
 python3 scripts/check-docs.py
 python3 scripts/dashboard.py --no-prs --out "$WORK/site/index.html" >/dev/null
 has "$(cat "$WORK/site/index.html")" 'Decisões aguardando o dono (1)'
+# Without GitHub, the page lists the pull requests merged with a merge
+# commit and those squashed into one commit ("Title (#N)").
+git commit -qm 'Work on the plan' --allow-empty
+git commit -qm 'Squash the plan (#7)' --allow-empty
+python3 scripts/dashboard.py --no-prs --out "$WORK/site/index.html" >/dev/null
+has "$(cat "$WORK/site/index.html")" '#7</a> Squash the plan'
 
 step 'The automatic review posts what it found, and blocks what must be fixed'
 # The schema the workflow gives the model is the shape the script reads.
