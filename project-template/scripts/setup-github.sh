@@ -88,14 +88,14 @@ token_step() {
         say 'that "claude setup-token" prints, after you sign in with that account.'
         if command -v claude >/dev/null; then
             local answer
-            read -r -p 'Run "claude setup-token" now? [Y/n]: ' answer
+            read -r -p 'Run "claude setup-token" now? [Y/n]: ' answer || answer=n   # Ctrl-D: no
             if [[ ! "$answer" =~ ^[nN] ]]; then
                 claude setup-token || say '(claude setup-token did not finish; paste a token you already have, or leave empty)'
             fi
         else
             say 'Claude Code is not installed here: run "claude setup-token" where it is.'
         fi
-        read -r -s -p 'Paste the token (it is not shown; empty to skip): ' token
+        read -r -s -p 'Paste the token (it is not shown; empty to skip): ' token || token=
         say ''
     fi
     token=$(printf '%s' "$token" | tr -d '[:space:]')
@@ -106,7 +106,7 @@ token_step() {
     if [[ "$token" != sk-ant-oat* ]]; then
         say 'This does not look like a token of "claude setup-token" (they start with sk-ant-oat).'
         local answer=n
-        interactive && read -r -p 'Save it anyway? [y/N]: ' answer
+        if interactive; then read -r -p 'Save it anyway? [y/N]: ' answer || answer=n; fi
         [[ "$answer" =~ ^[yY] ]] || { say 'Secret CLAUDE_CODE_OAUTH_TOKEN: not saved.'; return; }
     fi
     if [ "$DRY" = 1 ]; then
