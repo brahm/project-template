@@ -12,7 +12,22 @@ e português do Brasil).
 
 ## Começo rápido
 
-Um comando, no seu computador, com `git`, Python 3.11+ e o `gh` (a linha
+Abra o Claude Code na pasta do projeto (uma pasta vazia, para um projeto
+novo) e cole:
+
+```text
+Instale o agent project kit nesta pasta. Clone
+https://github.com/brahm/project-template numa pasta temporária e siga o
+INSTALL-AGENT.md dele. O que eu quero construir: ...
+```
+
+Ele instala o kit (projeto novo ou em andamento), coloca no GitHub e
+começa o projeto na mesma conversa. O único passo que fica com você é
+rodar `scripts/setup-github.sh` num terminal seu, que salva o token do seu
+plano Claude para a revisão automática sem ele passar pelo chat
+([INSTALACAO.md](INSTALACAO.md#a-partir-de-um-prompt-o-mais-simples)).
+
+Ou sem agente: um comando, no seu computador, com `git`, Python 3.11+ e o `gh` (a linha
 de comando do GitHub) instalados:
 
 ```sh
@@ -39,7 +54,7 @@ atualizar.
 | --- | --- | --- |
 | `project-template/` | Um repositório para começar projetos novos: `AGENTS.md` (a fonte única das regras), `CLAUDE.md` apontando para ele, `docs/` (objetivos, decisões, arquitetura, roteiro, verificação, padrões de engenharia, especificações, inventário, pendências, log do projeto, lições, estilo de escrita, painel e o Second Brain), `HISTORY.md`, `CONTRIBUTING.md`, doze skills, hooks de sessão, scripts, modelos de PR e de issue, CI com revisão automática de cada pull request, `REUSE.toml` e `init-project.sh` | Cada repositório novo |
 | `user-level/` | As regras de trabalho para o seu usuário (todos os projetos), os seus padrões para projetos novos e `install-user.sh`, que os instala com as skills no Claude Code, no Codex e no Pi sem sobrescrever seus arquivos | Seu computador, uma vez |
-| `install.sh` | O instalador: um projeto novo com o repositório no GitHub e a revisão automática, o kit num projeto em andamento, as atualizações ([INSTALACAO.md](INSTALACAO.md)) | O seu computador, cada projeto |
+| `install.sh`, `INSTALL-AGENT.md` | O instalador, e o procedimento que um agente segue para rodá-lo a partir de um prompt: um projeto novo com o repositório no GitHub e a revisão automática, o kit num projeto em andamento, as atualizações ([INSTALACAO.md](INSTALACAO.md)) | O seu computador, cada projeto |
 | `desktop/` | Texto para colar nas instruções de um Projeto do Claude ou do ChatGPT, e cada skill em .zip para enviar ao Claude | Apps de conversa, sem repositório |
 | `tools/`, `AGENTS.md`, `HISTORY.md` | Para trabalhar no próprio kit: as regras, o script que refaz os .zip, o teste que cria um projeto a partir do modelo e as versões do kit | Quem altera o kit |
 

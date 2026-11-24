@@ -3,8 +3,9 @@
 (Português: [INSTALACAO.md](INSTALACAO.md).)
 
 This manual covers the three cases: a new project, a project already under
-way, and keeping both the kit and your projects up to date. Everything is
-done by one script, `install.sh`, on your own computer.
+way, and keeping both the kit and your projects up to date. The simplest
+way is a prompt to your coding agent; underneath, everything is done by
+one script, `install.sh`, on your own computer.
 
 ## What you need
 
@@ -19,6 +20,38 @@ done by one script, `install.sh`, on your own computer.
   skips that step.
 - Optional: [`reuse`](https://reuse.software) for the licence check
   (`pipx install reuse`).
+
+## From a prompt (the simplest)
+
+Open Claude Code (or another coding agent) in the folder of the project:
+an empty folder for a new project, or the project you already have. Paste:
+
+```text
+Install the agent project kit in this folder. Clone
+https://github.com/brahm/project-template into a temporary folder and
+follow its INSTALL-AGENT.md. What I want to build: ...
+```
+
+(For a project under way, leave out the last sentence.) The agent checks
+the tools and your GitHub sign-in, sees whether the folder is a new
+project or one under way, asks once for what it cannot work out, runs
+`install.sh` with every value, and then starts the project from your
+brief, or adopts the kit in your code, in the same conversation. To
+update, paste the same prompt in a project that has the kit: it runs
+`install.sh update` and the `update-from-template` skill.
+
+Two steps stay with you, in a terminal of your own, because they are
+interactive and the agent cannot type into them:
+
+- `gh auth login -h github.com -s workflow`, only if `gh` is not signed in
+  (the agent tells you).
+- `scripts/setup-github.sh`, at the root of the project, to save the token
+  of your Claude plan for the automatic review. It offers to run `claude
+  setup-token` and reads the token without showing it, so the token never
+  passes through the conversation. Do not paste it in the chat.
+
+The procedure the agent follows is [INSTALL-AGENT.md](INSTALL-AGENT.md).
+The sections below are the same steps by hand.
 
 ## Getting the installer
 

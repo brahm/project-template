@@ -10,7 +10,22 @@ and other agents that read `AGENTS.md`.
 
 ## Quick start
 
-One command, on your computer, with `git`, Python 3.11+ and the GitHub CLI
+Open Claude Code in the folder of the project (an empty one for a new
+project) and paste:
+
+```text
+Install the agent project kit in this folder. Clone
+https://github.com/brahm/project-template into a temporary folder and
+follow its INSTALL-AGENT.md. What I want to build: ...
+```
+
+It installs the kit (a new project or one under way), puts it on GitHub,
+and starts the project in the same conversation. The one step left to you
+is `scripts/setup-github.sh` in a terminal of your own, which saves the
+token of your Claude plan for the automatic review without it passing
+through the chat ([INSTALL.md](INSTALL.md#from-a-prompt-the-simplest)).
+
+Or without an agent: one command, on your computer, with `git`, Python 3.11+ and the GitHub CLI
 `gh` installed:
 
 ```sh
@@ -36,7 +51,7 @@ rest and reports what it assumed. For a project already under way, use
 | --- | --- | --- |
 | `project-template/` | A repository to start new projects from: `AGENTS.md` (the single source of the rules), `CLAUDE.md` pointing to it, `docs/` (goals, decisions, architecture, roadmap, verification, engineering standards, specifications, inventory, backlog, project log, lessons, writing style, dashboard, and the Second Brain), `HISTORY.md`, `CONTRIBUTING.md`, twelve skills, session hooks, scripts, PR and issue templates, CI with an automatic review of each pull request, `REUSE.toml`, and `init-project.sh` | Every new repository |
 | `user-level/` | The working rules for your user (all projects), your defaults for new projects, and `install-user.sh`, which adds them and the skills to Claude Code, Codex and Pi without overwriting your files | Your computer, once |
-| `install.sh` | The installer: a new project with its GitHub repository and automatic review, the kit in a project under way, updates ([INSTALL.md](INSTALL.md)) | Your computer, each project |
+| `install.sh`, `INSTALL-AGENT.md` | The installer, and the procedure an agent follows to run it from a prompt: a new project with its GitHub repository and automatic review, the kit in a project under way, updates ([INSTALL.md](INSTALL.md)) | Your computer, each project |
 | `desktop/` | Text to paste into the instructions of a Claude or ChatGPT Project, and each skill zipped for upload to Claude | Chat apps without a repository |
 | `tools/`, `AGENTS.md`, `HISTORY.md` | For working on the kit itself: the rules, the script that rebuilds the zips, the test that makes a project from the template, and the kit's versions | Whoever changes the kit |
 

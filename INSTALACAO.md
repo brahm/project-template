@@ -3,7 +3,8 @@
 (English: [INSTALL.md](INSTALL.md).)
 
 Este manual cobre os três casos: um projeto novo, um projeto que já está
-em andamento, e manter o kit e os seus projetos atualizados. Tudo é feito
+em andamento, e manter o kit e os seus projetos atualizados. O jeito mais
+simples é um prompt para o seu agente de código; por baixo, tudo é feito
 por um script só, o `install.sh`, no seu próprio computador.
 
 ## O que é preciso
@@ -21,6 +22,39 @@ por um script só, o `install.sh`, no seu próprio computador.
   pula esse passo.
 - Opcional: o [`reuse`](https://reuse.software), para a verificação de
   licenças (`pipx install reuse`).
+
+## A partir de um prompt (o mais simples)
+
+Abra o Claude Code (ou outro agente de código) na pasta do projeto: uma
+pasta vazia para um projeto novo, ou o projeto que você já tem. Cole:
+
+```text
+Instale o agent project kit nesta pasta. Clone
+https://github.com/brahm/project-template numa pasta temporária e siga o
+INSTALL-AGENT.md dele. O que eu quero construir: ...
+```
+
+(Num projeto em andamento, deixe de fora a última frase.) O agente
+confere as ferramentas e o seu login no GitHub, vê se a pasta é um
+projeto novo ou um em andamento, pergunta uma vez só o que não consegue
+deduzir, roda o `install.sh` com todos os valores e, na mesma conversa,
+começa o projeto a partir do seu briefing ou adota o kit no seu código.
+Para atualizar, cole o mesmo prompt num projeto que já tem o kit: ele roda
+o `install.sh update` e a skill `update-from-template`.
+
+Dois passos ficam com você, num terminal seu, porque são interativos e o
+agente não consegue digitar neles:
+
+- `gh auth login -h github.com -s workflow`, só se o `gh` não estiver
+  logado (o agente avisa).
+- `scripts/setup-github.sh`, na raiz do projeto, para salvar o token do
+  seu plano Claude para a revisão automática. Ele oferece rodar o `claude
+  setup-token` e lê o token sem mostrá-lo, então o token nunca passa pela
+  conversa. Não cole o token no chat.
+
+O procedimento que o agente segue está no
+[INSTALL-AGENT.md](INSTALL-AGENT.md). As seções abaixo são os mesmos
+passos à mão.
 
 ## Como pegar o instalador
 
