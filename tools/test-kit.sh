@@ -61,6 +61,12 @@ if not version or f'## Changes in {version.group(1)} ' not in history:
 size = len((kit / 'project-template/AGENTS.md').read_bytes())
 if size > 12000:
     problems.append(f'project-template/AGENTS.md is {size} bytes; it is read every session, keep it under 12000')
+# The closing message of init-project.sh is an unquoted heredoc: a backquote
+# in it runs a command (it once ran `claude setup-token`).
+init = (kit / 'project-template/init-project.sh').read_text(encoding='utf-8')
+message = re.search(r'cat <<MSG\n(.*?)\nMSG\n', init, re.S)
+if not message or '`' in message.group(1) or '$(' in message.group(1):
+    problems.append('init-project.sh: its closing message must hold no backquote or $( ), which would run')
 if problems:
     sys.exit('\n'.join(problems))
 print(f'{len(skills)} skills named everywhere; kit version {version.group(1)}; AGENTS.md {size} bytes')
@@ -199,6 +205,9 @@ assert 'Bash' not in allowed and 'Read(./**)' in allowed, f'the model may do mor
 # The script that judges is the base branch's, and it is told the secrets.
 assert 'git show "origin/$BASE:scripts/review-report.py"' in wf, 'the pull request runs its own judge'
 assert wf.count('--secret-env') == 3, 'the secrets the comment must not hold'
+# Either an API key or a subscription token runs it.
+assert 'claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}' in wf, 'the subscription token'
+assert "secrets.ANTHROPIC_API_KEY != '' || secrets.CLAUDE_CODE_OAUTH_TOKEN != ''" in wf, 'either secret starts it'
 PY
 # The workflow runs a copy of the script from elsewhere, at the root.
 cp scripts/review-report.py "$WORK/review-report.py"

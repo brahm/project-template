@@ -58,7 +58,8 @@ it matters, and by a rule only when nothing else will.
   not write the change reads it for bugs, security problems and
   optimisations, and posts on the pull request what must be fixed, or
   that it passed. A blocking finding fails the check, so it cannot be
-  merged by mistake. It needs your API key as a repository secret.
+  merged by mistake. It runs on your Claude Pro or Max plan, with the
+  token of `claude setup-token` as a repository secret.
 - **What the project learns is kept, and found in seconds.** The Second
   Brain (`docs/brain/`) holds one Markdown note per subject: how a part
   works, the facts of the domain, the quirks of a service, the cause of
@@ -261,8 +262,10 @@ What you will look at, besides the reports:
   files without a licence.
 - **The automatic review**: one comment on each pull request, updated on
   every push: passed, passed with points to read, or blocked, with each
-  finding's file, line and fix. To turn it on, add the secret
-  `ANTHROPIC_API_KEY` to the repository, make the check `Review`
+  finding's file, line and fix. To turn it on, run `claude setup-token`
+  and add the token it prints to the repository as the secret
+  `CLAUDE_CODE_OAUTH_TOKEN`: the reviews then use your Claude Pro or Max
+  plan. Then make the check `Review`
   required on `main`, and turn on "Require review from Code Owners", so
   that a pull request cannot switch the review off for itself
   (`docs/kit.md` in the template, "The automatic review").
@@ -282,7 +285,7 @@ your user files, run `install-user.sh --replace-skills` again.
 `HISTORY.md` its versions. After a change, `tools/build-kit.py` rebuilds
 the skill zips and the kit's own copy of the automatic review (its pull
 requests are reviewed like a project's, once the secret
-`ANTHROPIC_API_KEY` is set on the kit's repository), and `tools/test-kit.sh` makes a project from the template
+`CLAUDE_CODE_OAUTH_TOKEN` is set on the kit's repository), and `tools/test-kit.sh` makes a project from the template
 in a temporary folder, runs its checks, and tries each guard on the
 mistake it exists for. The CI runs the same test.
 

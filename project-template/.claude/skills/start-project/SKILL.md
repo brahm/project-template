@@ -46,9 +46,9 @@ scripts and the other skills need no reading now.
    `.github/workflows/checks.yml`, the build and test commands in
    `CONTRIBUTING.md`, and the technology's entries in `.gitignore`. They
    must pass on the empty project. Keep `.github/workflows/review.yml`,
-   the automatic review of each pull request; it is a paid service that
-   waits for the owner's secret, so say in the report what it needs
-   (`docs/kit.md`, "The automatic review").
+   the automatic review of each pull request; it waits for the owner to
+   add the token of their Claude plan as a secret, so say in the report
+   how (`claude setup-token`, `docs/kit.md`, "The automatic review").
 8. **Fit the skills**, as `docs/kit.md` says. The kit's skills are
    written for any technology: do not read them all looking for changes.
    Add a skill for a procedure this project will repeat (running the

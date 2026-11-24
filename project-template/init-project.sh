@@ -185,4 +185,8 @@ Done. Next:
      then delete the "not started" section of AGENTS.md and the example
      rows (F-001 to F-007, B-001, L-001).
   2. Check that LICENSES/ has the licence text (reuse download --all).
+  3. To have every pull request reviewed before the merge, run
+     "claude setup-token" and add the token it prints to the GitHub
+     repository as the secret CLAUDE_CODE_OAUTH_TOKEN (docs/kit.md,
+     "The automatic review").
 MSG
