@@ -227,7 +227,7 @@ has "$(cat "$WORK/review.md")" 'não devolveu um resultado utilizável'
 
 step 'The Second Brain: notes are found, kept well formed and asked for'
 has "$(cat docs/brain/glossary.md)" "Updated: $(date +%F)"
-has "$(python3 scripts/status.py)" 'Second Brain: 1 notes in docs/brain'
+has "$(python3 scripts/status.py)" 'Second Brain: 1 note in docs/brain'
 has "$(python3 scripts/brain.py find owner)" 'docs/brain/glossary.md: Glossary.'
 has "$(python3 scripts/brain.py find owner confirms)" 'docs/decisions.md:'
 has "$(python3 scripts/brain.py find quasar)" 'Nothing is known about "quasar" yet'
@@ -246,6 +246,9 @@ cp docs/brain/cache.md docs/brain/Cache_Notes.md
 python3 scripts/brain.py index >/dev/null
 must_fail 'a note not named in lower case with hyphens' 'name it in lower case with hyphens' python3 scripts/brain.py check
 rm docs/brain/cache.md docs/brain/Cache_Notes.md && python3 scripts/brain.py index >/dev/null
+mkdir -p docs/brain/old && printf '# Old\n\n> Old.\n\nUpdated: 2026-11-24\n' >docs/brain/old/old.md
+must_fail 'a note in a subfolder, where nothing finds it' 'notes sit directly in docs/brain' python3 scripts/brain.py check
+rm -r docs/brain/old
 git add -A && git commit -qm 'Work so far' && git update-ref refs/remotes/origin/main HEAD
 # The Stop hook asks once per set of changed files, and not when a note changed.
 [ -z "$(echo '{}' | python3 scripts/brain.py nudge)" ] || fail 'the nudge spoke with nothing changed'

@@ -88,11 +88,16 @@ def cell(text):
     return text.replace('|', '\\|').replace('\n', ' ')
 
 
+def link_text(text):
+    """Text that can sit inside the brackets of a Markdown link in a table cell."""
+    return cell(text).replace('[', '\\[').replace(']', '\\]')
+
+
 def index_table(notes):
     """The table of notes that goes between the index marks of docs/brain/README.md."""
     lines = ['| Note | Summary | Tags | Updated |', '| --- | --- | --- | --- |']
     for n in sorted(notes, key=lambda n: fold(n['title'] or n['path'].name)):
-        lines.append(f'| [{cell(n["title"] or n["path"].stem)}]({n["path"].name}) | {cell(n["summary"])} '
+        lines.append(f'| [{link_text(n["title"] or n["path"].stem)}]({n["path"].name}) | {cell(n["summary"])} '
                      f'| {cell(", ".join(n["tags"]))} | {n["updated"]} |')
     return '\n'.join(lines)
 
@@ -128,6 +133,8 @@ def check():
         sys.exit('docs/brain/README.md is missing: take it from the template (docs/kit.md)')
     notes = [parse(p) for p in note_paths()]
     problems = [p for n in notes for p in problems_of(n)]
+    problems += [f'{rel(p)}: notes sit directly in docs/brain, where the index and find look for them'
+                 for p in sorted(BRAIN.rglob('*.md')) if p.parent != BRAIN]
     readme = INDEX.read_text(encoding='utf-8')
     wanted = with_index(readme, notes)
     if wanted is None:
@@ -181,7 +188,7 @@ def find(words):
             out.append(f'  {rel(n["path"])}: {n["title"]}. {short(n["summary"])}')
     lines = []
     for path in record_paths():
-        for number, line in enumerate(path.read_text(encoding='utf-8').splitlines(), start=1):
+        for number, line in enumerate(path.read_text(encoding='utf-8', errors='replace').splitlines(), start=1):
             if all(t in fold(line) for t in terms):
                 lines.append(f'  {rel(path)}:{number}: {short(line)}')
     if lines:
