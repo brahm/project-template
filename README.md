@@ -262,9 +262,10 @@ What you will look at, besides the reports:
 - **The automatic review**: one comment on each pull request, updated on
   every push: passed, passed with points to read, or blocked, with each
   finding's file, line and fix. To turn it on, add the secret
-  `ANTHROPIC_API_KEY` to the repository and make the check `Review`
-  required on `main` (`docs/kit.md` in the template, "The automatic
-  review").
+  `ANTHROPIC_API_KEY` to the repository, make the check `Review`
+  required on `main`, and turn on "Require review from Code Owners", so
+  that a pull request cannot switch the review off for itself
+  (`docs/kit.md` in the template, "The automatic review").
 - **The records**: `docs/decisions.md`, `docs/backlog/deferred.tsv`,
   `docs/project-log.md`, `docs/lessons.md` and `HISTORY.md`.
 - **What the project knows**: `python3 scripts/brain.py find WORDS`, or
