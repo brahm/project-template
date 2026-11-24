@@ -37,4 +37,8 @@ whole life of the project.
 9. **Checks**: run `scripts/check-all.sh` once, after the records: it
    also checks that they were updated. Report failures as they are; never
    loosen a test to pass.
-10. **Report** with `report-to-owner`.
+10. **Automatic review**: once the pull request is open, read the comment
+    of `.github/workflows/review.yml`. Fix what is blocking or should be
+    fixed, or answer in the pull request why a finding is wrong; a
+    suggestion not taken that is worth keeping goes to `defer-work`.
+11. **Report** with `report-to-owner`, with the verdict of the review.

@@ -163,6 +163,12 @@ Where the agent has a review command of its own (Claude Code:
 `/code-review`, and `/security-review` for a change that touches access,
 files or the network), run it on the diff as well.
 
+Once the pull request is open, `.github/workflows/review.yml` reviews it
+again by this list, with a model that did not write it, and posts what
+it found; a blocking finding fails the check
+([kit.md](kit.md#the-automatic-review)). That review comes after yours,
+not instead of it.
+
 ## The technology of this project
 
 Filled in when the project starts: the language and its version, the

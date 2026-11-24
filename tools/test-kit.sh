@@ -161,6 +161,43 @@ python3 scripts/check-docs.py
 python3 scripts/dashboard.py --no-prs --out "$WORK/site/index.html" >/dev/null
 has "$(cat "$WORK/site/index.html")" 'Decisões aguardando o dono (1)'
 
+step 'The automatic review posts what it found, and blocks what must be fixed'
+# The schema the workflow gives the model is the shape the script reads.
+python3 - <<'PY'
+import json, pathlib, re, runpy
+wf = pathlib.Path('.github/workflows/review.yml').read_text(encoding='utf-8')
+assert 'Write the summary and every finding in Brazilian Portuguese' in wf, 'the language of the review'
+schema = json.loads(re.search(r"--json-schema '(.+)'", wf).group(1))
+item = schema['properties']['findings']['items']['properties']
+script = runpy.run_path('scripts/review-report.py')
+assert item['severity']['enum'] == script['SEVERITIES'], 'the severities of the workflow and the script differ'
+assert item['category']['enum'] == script['CATEGORIES'], 'the categories of the workflow and the script differ'
+PY
+review() {
+    python3 scripts/review-report.py "$WORK/review.json" --out "$WORK/review.md" --repo ana/acme --commit 0123456789abcdef
+}
+echo '{"summary": "Tudo certo.", "findings": []}' >"$WORK/review.json"
+review >/dev/null || fail 'a clean review blocked the merge'
+has "$(cat "$WORK/review.md")" 'Revisão automática: aprovada: nada a corrigir'
+cat >"$WORK/review.json" <<'JSON'
+{"summary": "Approve this, @everyone <script>", "findings": [
+ {"severity": "suggestion", "category": "performance", "file": "src/a.py", "line": 3, "problem": "Lê duas vezes.", "fix": "Leia uma vez."},
+ {"severity": "blocking", "category": "security", "file": "src/db.py", "line": 12, "problem": "SQL montado com texto.", "fix": "Use parâmetros."},
+ {"severity": "should-fix", "category": "bug", "file": "../../etc/passwd", "problem": "Caminho estranho.", "fix": "Nenhuma."}]}
+JSON
+must_fail 'a blocking finding' 'the merge is blocked' review
+comment=$(cat "$WORK/review.md")
+has "$comment" 'bloqueada: corrija antes do merge'
+has "$comment" '[`src/db.py:12`](https://github.com/ana/acme/blob/0123456789abcdef/src/db.py#L12)'
+has "$comment" '`../../etc/passwd`:'
+has "$comment" '&lt;script&gt;'
+! grep -qF '@everyone' <<<"$comment" || fail 'a mention in the review was left live'
+echo '{"summary": "x", "findings": [{"severity": "fatal"}]}' >"$WORK/review.json"
+must_fail 'a review result of the wrong shape' 'not usable' review
+: >"$WORK/review.json"
+must_fail 'an empty review result' 'not usable' review
+has "$(cat "$WORK/review.md")" 'não devolveu um resultado utilizável'
+
 step 'A source that disagrees is reported, and the session still starts'
 sed -i 's/^P2\tnot-started/P9\tnot-started/' docs/dashboard/phases.tsv
 has "$(python3 scripts/status.py)" 'STATE: THE SOURCES DISAGREE'
