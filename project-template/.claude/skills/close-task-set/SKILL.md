@@ -22,7 +22,7 @@ whole life of the project.
 5. **Lessons**: if the owner had to correct something, or a mistake
    repeated, it has a row and a guard (`capture-lesson`).
 6. **Dashboard**: run
-   `python3 scripts/dashboard.py --record --artifact /tmp/dashboard.html`,
+   `python3 scripts/dashboard.py --record --artifact _site/dashboard.html`,
    commit `docs/dashboard/history.tsv`, `changes.tsv` and `snapshot.tsv`.
    If the owner has a hosted page (see `docs/dashboard/README.md`),
    republish the file **at the same address**; never create a second page.
