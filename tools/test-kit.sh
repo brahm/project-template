@@ -383,6 +383,26 @@ must_fail 'a folder that is not a project of the kit' 'install.sh existing' "$KI
 has "$(cd demo && AGENT_KIT_NO_PULL=1 "$KIT/install.sh" update </dev/null)" 'the newest'
 echo 'ok'
 
+step 'An agent installs in the folder it was opened in (INSTALL-AGENT.md)'
+# What Claude Code leaves in a new folder, and an empty repository on another branch.
+mkdir -p "$WORK/here/.claude" && cd "$WORK/here"
+git init -q -b master && echo '{}' >.claude/settings.local.json
+"$KIT/install.sh" new . --no-github --no-user --summary 'a tool made here' </dev/null >"$WORK/here.log" 2>&1 \
+    || { cat "$WORK/here.log"; fail 'install.sh new . in a folder with only what an agent leaves'; }
+[ "$(git branch --show-current)" = main ] && [ "$(git log --format=%s)" != '' ] || fail 'the first commit is not on main'
+[ "$(cat .claude/settings.local.json)" = '{}' ] && [ -f .claude/settings.json ] || fail 'the settings of the folder'
+has "$(cat README.md)" '# here'
+mkdir -p "$WORK/notes" && echo x >"$WORK/notes/a.txt"
+must_fail 'a folder with files, taken for a new project' 'install.sh existing' "$KIT/install.sh" new "$WORK/notes" </dev/null
+# Every option the procedure gives the agent exists.
+for option in $(grep -oE -- '--[a-z][a-z-]+' "$KIT/INSTALL-AGENT.md" | sort -u); do
+    case "$option" in --summary|--name|--owner|--owner-lang|--dashboard-lang|--repo-lang|--timezone|--license|--tools|--copy) ;;
+        *) grep -qF -- "$option)" "$KIT/install.sh" "$KIT/user-level/install-user.sh" \
+               || fail "INSTALL-AGENT.md names $option, which no script has" ;;
+    esac
+done
+echo 'ok'
+
 step 'The installer adds the kit to a project under way without overwriting it'
 mkdir -p "$WORK/app/.claude" "$WORK/app/.github/workflows" "$WORK/app/docs"
 cd "$WORK/app"

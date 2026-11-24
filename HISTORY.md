@@ -5,6 +5,20 @@ from the template reads this file to learn what is newer than its own kit
 version (`docs/kit.md` in the project, and the `update-from-template`
 skill).
 
+## Changes in 1.5.1 (2026-11-24)
+
+* Added: Installing from a prompt. Pasted in a coding agent opened in the
+  project's folder, a short prompt has it clone the kit and follow
+  `INSTALL-AGENT.md`: check the tools and the GitHub sign-in, tell a new
+  project from one under way, ask once, run `install.sh` with every
+  value, and go on with `start-project` in the same conversation. The
+  token of `claude setup-token` stays out of the conversation: the owner
+  runs `scripts/setup-github.sh` in a terminal of their own.
+  `README.md`, `LEIA-ME.md`, `INSTALL.md` and `INSTALACAO.md` lead with it.
+* Changed: `install.sh new .` installs in the current folder when it is
+  empty, or holds only an empty git repository, Claude Code's
+  `.claude/settings.local.json` or `.DS_Store`.
+
 ## Changes in 1.5.0 (2026-11-24)
 
 * Added: `install.sh`, one command for the whole installation. `new NAME`

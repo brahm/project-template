@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Installs the agent project kit, in one command, on your computer.
 #
-#   install.sh new NAME [options]      a new project: the folder NAME, filled
-#                                      from the template, a private GitHub
+#   install.sh new NAME [options]      a new project: the folder NAME (or .,
+#                                      an empty current folder), filled from
+#                                      the template, a private GitHub
 #                                      repository, the automatic review on
 #   install.sh existing [DIR] [opts]   the kit in a project under way (DIR, or
 #                                      the current folder), without
@@ -62,7 +63,7 @@ fi
 TEMPLATE=$KIT/project-template
 KIT_VERSION=$(sed -nE 's/^\| Kit version \| ([^ ]+) \|$/\1/p' "$TEMPLATE/docs/kit.md")
 
-usage() { sed -n '2,32p' "$KIT/install.sh"; }
+usage() { sed -n '2,33p' "$KIT/install.sh"; }
 [ $# -gt 0 ] || { usage; exit 2; }
 COMMAND=$1; shift
 case "$COMMAND" in
@@ -175,16 +176,29 @@ origin_repo() {  # the owner/name of the GitHub remote origin of DIR, or nothing
         | sed -nE 's#^(https?://|git@|ssh://git@)github\.com[:/]([^/]+/[^/]+)$#\2#p' | sed 's/\.git$//' || true
 }
 
+empty_folder() {  # empty_folder DIR: nothing in it but what an agent or the system leaves in a new folder
+    local dir=$1
+    [ -z "$(ls -A "$dir" | grep -vxE '\.git|\.claude|\.DS_Store' || true)" ] || return 1
+    # A git repository without commits, and Claude Code's own settings of the folder.
+    if [ -e "$dir/.git" ] && git -C "$dir" rev-parse -q --verify HEAD >/dev/null; then return 1; fi
+    if [ -d "$dir/.claude" ] && [ -n "$(ls -A "$dir/.claude" | grep -vx settings.local.json || true)" ]; then return 1; fi
+    return 0
+}
+
 cmd_new() {
     [ -n "$TARGET" ] || die 'name the folder of the new project: install.sh new my-project'
     need_tools
     local dir name repo=
-    dir=$(mkdir -p "$(dirname "$TARGET")" && cd "$(dirname "$TARGET")" && pwd)/$(basename "$TARGET")
+    if [ -d "$TARGET" ]; then           # "." when an agent runs it in the folder it was opened in
+        dir=$(cd "$TARGET" && pwd)
+    else
+        dir=$(mkdir -p "$(dirname "$TARGET")" && cd "$(dirname "$TARGET")" && pwd)/$(basename "$TARGET")
+    fi
     name=$(basename "$dir")
     [[ "$name" =~ ^[A-Za-z0-9._-]+$ ]] \
         || die "\"$name\" cannot be the name of a GitHub repository: use letters, digits, dots, hyphens or underscores"
-    if [ -e "$dir" ] && [ -n "$(ls -A "$dir")" ] && [ ! -f "$dir/docs/kit.md" ]; then
-        die "$dir exists and is not a project of the kit; to add the kit to it: install.sh existing $TARGET"
+    if [ -d "$dir" ] && [ ! -f "$dir/docs/kit.md" ] && ! empty_folder "$dir"; then
+        die "$dir already has files; to add the kit to them: install.sh existing $TARGET"
     fi
     if [ "$GITHUB" = 1 ]; then
         need_gh
@@ -196,6 +210,7 @@ cmd_new() {
         mkdir -p "$dir"
         cp -R "$TEMPLATE/." "$dir/"
         git -C "$dir" init -q -b main
+        git -C "$dir" symbolic-ref HEAD refs/heads/main   # a folder that was already an empty repository
     fi
     if [ -f "$dir/init-project.sh" ]; then
         use_defaults

@@ -5,8 +5,9 @@ This repository is the agent project kit: a project template
 the text and skill zips for the chat apps (`desktop/`), and `install.sh`,
 which installs all of it in a new project or one under way. `README.md`
 describes it in English and `LEIA-ME.md` in Brazilian Portuguese;
-`INSTALL.md` and `INSTALACAO.md` are the manual of the installer. A
-change to `install.sh` changes both manuals.
+`INSTALL.md` and `INSTALACAO.md` are the manual of the installer, and
+`INSTALL-AGENT.md` the procedure an agent follows to run it from a prompt.
+A change to `install.sh` changes all three.
 
 `CLAUDE.md` only points here.
 
