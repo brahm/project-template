@@ -72,6 +72,27 @@ TODAY=$(date +%F)
 YEAR=$(date +%Y)
 [ -n "$DASH_URL" ] || DASH_URL='none yet (set it here when the owner creates one)'
 
+# Check the values before any file changes: a bad one found later would
+# leave the project half filled, with no placeholders left to run again on.
+python3 - "$DASH_LANG" "$TZ_" "$REPO" "$LICENSE" <<'PY'
+import re, runpy, sys, zoneinfo
+lang, tz, repo, licence = sys.argv[1:]
+labels = runpy.run_path('scripts/dashboard.py')['LABELS']
+problems = []
+if lang not in labels:
+    problems.append(f'--dashboard-lang must be one of {", ".join(sorted(labels))}, not "{lang}"')
+try:
+    zoneinfo.ZoneInfo(tz)
+except (zoneinfo.ZoneInfoNotFoundError, ValueError):
+    problems.append(f'--timezone "{tz}" is not a time zone name such as America/Sao_Paulo or UTC')
+if repo and not re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?/[A-Za-z0-9._-]+', repo):
+    problems.append(f'--repo "{repo}" is not owner/name')
+if not re.fullmatch(r'[A-Za-z0-9.+-]+(?: (?:AND|OR|WITH) [A-Za-z0-9.+-]+)*', licence):
+    problems.append(f'--license "{licence}" is not an SPDX identifier such as MIT or Apache-2.0')
+if problems:
+    sys.exit('init-project.sh changed nothing:\n  ' + '\n  '.join(problems))
+PY
+
 # Replace the placeholders in every text file of the template.
 export NAME SUMMARY OWNER REPO REPO_LANG OWNER_LANG DASH_LANG TZ_ LICENSE DASH_URL TODAY YEAR
 python3 - <<'PY'
@@ -125,6 +146,20 @@ if want cursor; then
     mkdir -p .cursor/rules
     printf -- '---\ndescription: Project rules\nalwaysApply: true\n---\n\nFollow [AGENTS.md](../../AGENTS.md), the rules of this project.\n' \
         > .cursor/rules/project.mdc
+fi
+
+# The automatic review decides whether a change may be merged, and a pull
+# request runs its own copy of the workflow: changes to it wait for the
+# owner's review (docs/kit.md, "The automatic review").
+if [ -n "$REPO" ]; then
+    mkdir -p .github
+    printf '%s\n' \
+        '# Changes to the workflows and to the automatic review need the review of the' \
+        '# owner, once "Require review from Code Owners" is on for main (docs/kit.md).' \
+        "/.github/ @${REPO%%/*}" \
+        "/scripts/review-report.py @${REPO%%/*}" >.github/CODEOWNERS
+else
+    echo 'No GitHub repository given: write .github/CODEOWNERS when there is one (docs/kit.md).'
 fi
 
 python3 scripts/check-backlog.py

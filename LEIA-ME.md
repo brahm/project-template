@@ -27,7 +27,7 @@ Ele faz o resto e relata o que assumiu.
 
 | Pasta | O que é | Para quê |
 | --- | --- | --- |
-| `project-template/` | Um repositório para começar projetos novos: `AGENTS.md` (a fonte única das regras), `CLAUDE.md` apontando para ele, `docs/` (objetivos, decisões, arquitetura, roteiro, verificação, padrões de engenharia, especificações, inventário, pendências, log do projeto, lições, estilo de escrita, painel), `HISTORY.md`, `CONTRIBUTING.md`, onze skills, um hook de início de sessão, scripts, modelos de PR e de issue, CI, `REUSE.toml` e `init-project.sh` | Cada repositório novo |
+| `project-template/` | Um repositório para começar projetos novos: `AGENTS.md` (a fonte única das regras), `CLAUDE.md` apontando para ele, `docs/` (objetivos, decisões, arquitetura, roteiro, verificação, padrões de engenharia, especificações, inventário, pendências, log do projeto, lições, estilo de escrita, painel), `HISTORY.md`, `CONTRIBUTING.md`, onze skills, um hook de início de sessão, scripts, modelos de PR e de issue, CI com revisão automática de cada pull request, `REUSE.toml` e `init-project.sh` | Cada repositório novo |
 | `user-level/` | As regras de trabalho para o seu usuário (todos os projetos), os seus padrões para projetos novos e `install-user.sh`, que os instala com as skills no Claude Code, no Codex e no Pi sem sobrescrever seus arquivos | Seu computador, uma vez |
 | `desktop/` | Texto para colar nas instruções de um Projeto do Claude ou do ChatGPT, e cada skill em .zip para enviar ao Claude | Apps de conversa, sem repositório |
 | `tools/`, `AGENTS.md`, `HISTORY.md` | Para trabalhar no próprio kit: as regras, o script que refaz os .zip, o teste que cria um projeto a partir do modelo e as versões do kit | Quem altera o kit |
@@ -55,6 +55,12 @@ certo, e com uma regra só quando nada mais serve.
 - **O que vive sendo esquecido vira verificação.** Link quebrado, id que
   não existe, painel sem registro, mudança sem linha no HISTORY: o
   `scripts/check-all.sh` e o CI falham.
+- **Todo pull request é revisado antes do merge.** Um modelo que não
+  escreveu a mudança lê o código em busca de bugs, problemas de segurança
+  e otimizações, e comenta no pull request o que precisa ser corrigido,
+  ou que tudo passou. Um apontamento bloqueante faz a verificação falhar,
+  e o merge não acontece por engano. Precisa da sua chave de API como
+  segredo do repositório.
 - **Suas correções viram proteções.** Quando você precisa corrigir o
   agente, ele registra a lição, cria o que a evita e propõe levar ao
   modelo quando serve para qualquer projeto.
@@ -246,6 +252,15 @@ O que você vai olhar, além dos relatórios:
   com teste quebrado, link quebrado, id que não existe, painel sem
   registro, mudança sem linha no HISTORY ou sem entrada no log do projeto,
   e arquivo sem licença.
+- **A revisão automática**: um comentário em cada pull request,
+  atualizado a cada push: aprovada, aprovada com pontos para ler, ou
+  bloqueada, com o arquivo, a linha e a correção de cada apontamento.
+  Para ligar, adicione o segredo `ANTHROPIC_API_KEY` ao repositório
+  (Settings > Secrets and variables > Actions), torne obrigatória a
+  verificação `Review` na `main` e ligue "Require review from Code
+  Owners", para que um pull request não consiga desligar a revisão para
+  si mesmo (`docs/kit.md` do modelo, "The automatic review"). Sem o
+  segredo, a revisão é pulada com um aviso.
 - **Os registros**: `docs/decisions.md`, `docs/backlog/deferred.tsv`,
   `docs/project-log.md`, `docs/lessons.md` e `HISTORY.md`.
 

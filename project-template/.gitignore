@@ -1,5 +1,6 @@
 /_site/
 __pycache__/
+/.review/
 # Secrets and settings of one machine never enter the repository.
 .env
 .env.*

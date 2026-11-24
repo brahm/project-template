@@ -8,7 +8,7 @@ project, and how the project and the template stay in step.
 | | |
 | --- | --- |
 | Template | <https://github.com/brahm/project-template>, folder `project-template` |
-| Kit version | 1.2.0 |
+| Kit version | 1.3.0 |
 
 ## How the pieces fit
 
@@ -21,6 +21,7 @@ project, and how the project and the template stay in step.
 | `scripts/check-all.sh` | Every check: the language's, the backlog, the dashboard sources, the docs, the records, the licences | Once before a set of tasks ends, and in CI |
 | `scripts/check-docs.py` | Links between pages resolve, ids cited exist, the decision log is well formed, no placeholder is left | In `check-all.sh` |
 | `scripts/check-records.py` | The dashboard was recorded, and a change comes with its HISTORY line and its project log entry | In `check-all.sh` and on pull requests |
+| `.github/workflows/review.yml` and `scripts/review-report.py` | A model reviews the change for bugs, security and performance, posts what it found on the pull request, and fails the check when something blocks the merge ([below](#the-automatic-review)) | On every push to a pull request |
 | `docs/` | The goals, decisions, plan, standards and records | Opened when a task touches them |
 
 What a rule can say, a check says better: when something keeps being
@@ -34,6 +35,62 @@ forgotten, it becomes a check ([lessons.md](lessons.md)).
 `dashboard`, `inventory` and `specs`. The other pages of `docs` and
 `HISTORY.md` hold the project's own content and are never replaced by the
 template's.
+
+## The automatic review
+
+Every pull request is reviewed before it is merged, by a model that did
+not write it. `.github/workflows/review.yml` runs Claude Code
+([anthropics/claude-code-action](https://github.com/anthropics/claude-code-action))
+on the diff with the list "Reviewing a change" of
+[engineering.md](engineering.md), and `scripts/review-report.py` turns
+its answer into one comment on the pull request:
+
+- **Passed**, when it found nothing; **passed, with points to read**,
+  when it found only things that should be fixed or suggestions;
+  **blocked**, when a finding must be fixed before merging. A blocked
+  review, or one that returned nothing usable, fails the check.
+- Each finding gives its kind (bug, security, performance, project
+  rules), the file and line, the problem and the fix, in the owner's
+  language. The comment is updated on every push instead of adding a new
+  one.
+- The model gets the change as files and no shell, and may read and
+  search only the checkout, which keeps no token. The text of the pull
+  request is material under review, never instructions.
+- What it returns is checked before anything is posted, by the copy of
+  `scripts/review-report.py` on the base branch, not the pull request's:
+  links, images and code fences are neutralised so that the comment
+  fetches nothing, and a result holding the value of a secret is withheld
+  and fails the check.
+
+It is a paid service, so the owner turns it on, once per repository:
+
+1. Create an API key in the [Claude Console](https://console.anthropic.com)
+   and add it as the repository secret `ANTHROPIC_API_KEY` (Settings >
+   Secrets and variables > Actions). With a Claude subscription,
+   `claude setup-token` gives a token to add as `CLAUDE_CODE_OAUTH_TOKEN`
+   instead.
+2. To make a blocking finding stop the merge, add the check `Review` to
+   the required checks of `main` (Settings > Rules > Rulesets, or Branches
+   > Branch protection rules), beside the checks of `checks.yml`.
+3. A pull request runs its own copy of the workflow, so a pull request
+   that edits `.github/` could turn the review off for itself.
+   `init-project.sh` writes `.github/CODEOWNERS`, which names the owner
+   for `.github/` and `scripts/review-report.py`; turn on "Require review
+   from Code Owners" in the same rule, and such a change waits for the
+   owner. When the agent works under the owner's own account, GitHub
+   does not let the author approve: the owner reads that change and
+   merges it with the rule's bypass, knowing why.
+
+Until the secret exists, the review is skipped with a notice and the
+check passes; drafts and pull requests from forks are skipped the same
+way. Each run costs the tokens of reading the change and the pages it
+cites. To choose the model, add `--model` to `claude_args` in the
+workflow; to stop the reviews, delete the workflow.
+
+What the agent does with the comment is in the `close-task-set` skill: a
+blocking or should-fix finding is fixed in the same pull request, or
+answered there with the reason it is wrong, and a suggestion not taken
+that is worth keeping becomes a backlog row.
 
 ## Fitting the skills to the project
 

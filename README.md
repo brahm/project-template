@@ -25,7 +25,7 @@ rest and reports what it assumed.
 
 | Folder | What it is | For |
 | --- | --- | --- |
-| `project-template/` | A repository to start new projects from: `AGENTS.md` (the single source of the rules), `CLAUDE.md` pointing to it, `docs/` (goals, decisions, architecture, roadmap, verification, engineering standards, specifications, inventory, backlog, project log, lessons, writing style, dashboard), `HISTORY.md`, `CONTRIBUTING.md`, eleven skills, a session hook, scripts, PR and issue templates, CI, `REUSE.toml`, and `init-project.sh` | Every new repository |
+| `project-template/` | A repository to start new projects from: `AGENTS.md` (the single source of the rules), `CLAUDE.md` pointing to it, `docs/` (goals, decisions, architecture, roadmap, verification, engineering standards, specifications, inventory, backlog, project log, lessons, writing style, dashboard), `HISTORY.md`, `CONTRIBUTING.md`, eleven skills, a session hook, scripts, PR and issue templates, CI with an automatic review of each pull request, `REUSE.toml`, and `init-project.sh` | Every new repository |
 | `user-level/` | The working rules for your user (all projects), your defaults for new projects, and `install-user.sh`, which adds them and the skills to Claude Code, Codex and Pi without overwriting your files | Your computer, once |
 | `desktop/` | Text to paste into the instructions of a Claude or ChatGPT Project, and each skill zipped for upload to Claude | Chat apps without a repository |
 | `tools/`, `AGENTS.md`, `HISTORY.md` | For working on the kit itself: the rules, the script that rebuilds the zips, the test that makes a project from the template, and the kit's versions | Whoever changes the kit |
@@ -54,6 +54,11 @@ it matters, and by a rule only when nothing else will.
 - **What keeps being forgotten becomes a check.** Broken links, ids that
   do not exist, a dashboard not recorded, a change without its HISTORY
   line: `scripts/check-all.sh` and the CI fail on them.
+- **Every pull request is reviewed before the merge.** A model that did
+  not write the change reads it for bugs, security problems and
+  optimisations, and posts on the pull request what must be fixed, or
+  that it passed. A blocking finding fails the check, so it cannot be
+  merged by mistake. It needs your API key as a repository secret.
 - **Your corrections become guards.** When you have to correct the
   agent, it records the lesson and adds what prevents it, and proposes it
   to the template when it would help every project.
@@ -244,6 +249,13 @@ What you will look at, besides the reports:
   failing tests, broken links, ids that do not exist, a dashboard not
   recorded, a change without its HISTORY line or project log entry, and
   files without a licence.
+- **The automatic review**: one comment on each pull request, updated on
+  every push: passed, passed with points to read, or blocked, with each
+  finding's file, line and fix. To turn it on, add the secret
+  `ANTHROPIC_API_KEY` to the repository, make the check `Review`
+  required on `main`, and turn on "Require review from Code Owners", so
+  that a pull request cannot switch the review off for itself
+  (`docs/kit.md` in the template, "The automatic review").
 - **The records**: `docs/decisions.md`, `docs/backlog/deferred.tsv`,
   `docs/project-log.md`, `docs/lessons.md` and `HISTORY.md`.
 

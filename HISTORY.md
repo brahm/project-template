@@ -5,6 +5,27 @@ from the template reads this file to learn what is newer than its own kit
 version (`docs/kit.md` in the project, and the `update-from-template`
 skill).
 
+## Changes in 1.3.0 (2026-11-24)
+
+* Added: An automatic review of every pull request before the merge.
+  `.github/workflows/review.yml` has Claude Code read the change for
+  bugs, security problems, optimisations and the project's rules, and
+  `scripts/review-report.py` posts one comment, updated on every push,
+  that says what must be fixed or that the change passed; a blocking
+  finding fails the check `Review`. It needs the secret
+  `ANTHROPIC_API_KEY`, and is skipped with a notice without it.
+  `docs/kit.md` says how to turn it on and make it required;
+  `docs/engineering.md`, `close-task-set` and `start-project` say what
+  the agent does with it. The model gets the change as files, reads only
+  the checkout, which keeps no token, and has no shell; the copy of the
+  script on the base branch judges the result, neutralises links, images
+  and code fences, and withholds a result that holds a secret; and
+  `init-project.sh` writes `.github/CODEOWNERS` so that a change to the
+  review waits for the owner.
+* Fixed: `init-project.sh` checks the dashboard language, the time zone,
+  the repository and the licence before it changes any file, so that a
+  bad value no longer leaves the project half filled.
+
 ## Changes in 1.2.0 (2026-11-17)
 
 * Added: `scripts/check-backlog.py` fails on a `TODO`, `FIXME`, `XXX` or

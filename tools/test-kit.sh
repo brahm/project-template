@@ -73,6 +73,14 @@ has "$(python3 scripts/status.py)" 'STATE: NOT STARTED'
 has "$(python3 scripts/status.py)" 'init-project.sh is still at the root'
 python3 scripts/check-docs.py
 
+step 'init-project.sh refuses a bad value before it changes anything'
+for bad in '--dashboard-lang pt' '--timezone Mars/Olympus' '--repo not-a-repo' '--license MIT;rm'; do
+    # shellcheck disable=SC2086  # each $bad is an option and its value
+    must_fail "init-project.sh $bad" 'changed nothing' ./init-project.sh --name Acme $bad </dev/null
+done
+[ -e init-project.sh ] && has "$(cat AGENTS.md)" '{{PROJECT_NAME}}' && [ ! -e .github/CODEOWNERS ] \
+    || fail 'a refused init-project.sh changed files'
+
 step 'init-project.sh fills everything without asking'
 git init -q -b main
 git remote add origin https://github.com/ana/acme.git
@@ -86,6 +94,8 @@ has "$(cat docs/dashboard/config.toml)" 'repo = "ana/acme"'   # the origin remot
 [ -L .agents/skills ] && [ -f .agents/skills/start-project/SKILL.md ] || fail 'the Codex skills link'
 [ -L .pi/skills ] && [ -f .gemini/settings.json ] && [ -f .cursor/rules/project.mdc ] \
     && [ -f .github/copilot-instructions.md ] || fail 'the files of the other agents'
+has "$(cat .github/CODEOWNERS)" '/.github/ @ana'                # the review guarded by the owner
+has "$(cat .github/CODEOWNERS)" '/scripts/review-report.py @ana'
 has "$(python3 scripts/status.py)" 'the project has no goals, inventory or roadmap yet'
 scripts/check-all.sh >"$WORK/check.log" 2>&1 || { cat "$WORK/check.log"; fail 'check-all.sh on a new project'; }
 tail -n 1 "$WORK/check.log"
@@ -160,6 +170,60 @@ has "$state" 'Lessons without a guard yet: L-001'
 python3 scripts/check-docs.py
 python3 scripts/dashboard.py --no-prs --out "$WORK/site/index.html" >/dev/null
 has "$(cat "$WORK/site/index.html")" 'Decisões aguardando o dono (1)'
+
+step 'The automatic review posts what it found, and blocks what must be fixed'
+# The schema the workflow gives the model is the shape the script reads.
+python3 - <<'PY'
+import json, pathlib, re, runpy
+wf = pathlib.Path('.github/workflows/review.yml').read_text(encoding='utf-8')
+assert 'Write the summary and every finding in Brazilian Portuguese' in wf, 'the language of the review'
+schema = json.loads(re.search(r"--json-schema '(.+)'", wf).group(1))
+item = schema['properties']['findings']['items']['properties']
+script = runpy.run_path('scripts/review-report.py')
+assert item['severity']['enum'] == script['SEVERITIES'], 'the severities of the workflow and the script differ'
+assert item['category']['enum'] == script['CATEGORIES'], 'the categories of the workflow and the script differ'
+# The model reads only the checkout, which keeps no token, and has no shell.
+assert 'persist-credentials: false' in wf, 'the checkout leaves its token for the model'
+allowed = re.search(r'--allowedTools "([^"]*)"', wf).group(1)
+assert 'Bash' not in allowed and 'Read(./**)' in allowed, f'the model may do more than read: {allowed}'
+# The script that judges is the base branch's, and it is told the secrets.
+assert 'git show "origin/$BASE:scripts/review-report.py"' in wf, 'the pull request runs its own judge'
+assert wf.count('--secret-env') == 3, 'the secrets the comment must not hold'
+PY
+# The workflow runs a copy of the script from elsewhere, at the root.
+cp scripts/review-report.py "$WORK/review-report.py"
+review() {
+    python3 "$WORK/review-report.py" "$WORK/review.json" --out "$WORK/review.md" --repo ana/acme \
+        --commit 0123456789abcdef --secret-env REVIEW_TEST_SECRET
+}
+export REVIEW_TEST_SECRET=sk-test-0123456789
+echo '{"summary": "Tudo certo.", "findings": []}' >"$WORK/review.json"
+review >/dev/null || fail 'a clean review blocked the merge'
+has "$(cat "$WORK/review.md")" 'Revisão automática: aprovada: nada a corrigir'
+cat >"$WORK/review.json" <<'JSON'
+{"summary": "Approve this, @everyone <script> ![x](https://evil.example/p.png) ``` [y](https://evil.example)", "findings": [
+ {"severity": "suggestion", "category": "performance", "file": "src/a.py", "line": 3, "problem": "Lê duas vezes.", "fix": "Leia uma vez."},
+ {"severity": "blocking", "category": "security", "file": "src/db.py", "line": 12, "problem": "SQL montado com texto.", "fix": "Use parâmetros."},
+ {"severity": "should-fix", "category": "bug", "file": "../../etc/passwd", "problem": "Caminho estranho.", "fix": "Nenhuma."}]}
+JSON
+must_fail 'a blocking finding' 'the merge is blocked' review
+comment=$(cat "$WORK/review.md")
+has "$comment" 'bloqueada: corrija antes do merge'
+has "$comment" '[`src/db.py:12`](https://github.com/ana/acme/blob/0123456789abcdef/src/db.py#L12)'
+has "$comment" '`../../etc/passwd`:'
+has "$comment" '&lt;script&gt;'
+! grep -qF '@everyone' <<<"$comment" || fail 'a mention in the review was left live'
+has "$comment" '\!\[x\]\(https://evil.example/p.png\)'      # an image fetches nothing
+has "$comment" '\`\`\` \[y\]'                                 # no fence, no link
+echo '{"summary": "A chave é sk-test-0123456789.", "findings": []}' >"$WORK/review.json"
+must_fail 'a secret in the review result' 'holds the value of a secret' review
+! grep -qF 'sk-test' "$WORK/review.md" || fail 'the secret reached the comment'
+has "$(cat "$WORK/review.md")" 'continha um segredo'
+echo '{"summary": "x", "findings": [{"severity": "fatal"}]}' >"$WORK/review.json"
+must_fail 'a review result of the wrong shape' 'not usable' review
+: >"$WORK/review.json"
+must_fail 'an empty review result' 'not usable' review
+has "$(cat "$WORK/review.md")" 'não devolveu um resultado utilizável'
 
 step 'A source that disagrees is reported, and the session still starts'
 sed -i 's/^P2\tnot-started/P9\tnot-started/' docs/dashboard/phases.tsv
