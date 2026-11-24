@@ -2,8 +2,11 @@
 
 This repository is the agent project kit: a project template
 (`project-template/`), the rules and installer for a user (`user-level/`),
-and the text and skill zips for the chat apps (`desktop/`). `README.md`
-describes it in English and `LEIA-ME.md` in Brazilian Portuguese.
+the text and skill zips for the chat apps (`desktop/`), and `install.sh`,
+which installs all of it in a new project or one under way. `README.md`
+describes it in English and `LEIA-ME.md` in Brazilian Portuguese;
+`INSTALL.md` and `INSTALACAO.md` are the manual of the installer. A
+change to `install.sh` changes both manuals.
 
 `CLAUDE.md` only points here.
 
@@ -44,7 +47,7 @@ are editing.
    (`update-from-template`).
 6. **Change `main` through a pull request.**
 7. Everything is written in English by `project-template/docs/writing-style.md`,
-   except `LEIA-ME.md`.
+   except `LEIA-ME.md` and `INSTALACAO.md`.
 
 ## Starting a new project from the template
 

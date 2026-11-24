@@ -8,7 +8,7 @@ project, and how the project and the template stay in step.
 | | |
 | --- | --- |
 | Template | <https://github.com/brahm/project-template>, folder `project-template` |
-| Kit version | 1.4.1 |
+| Kit version | 1.5.0 |
 
 ## How the pieces fit
 
@@ -22,6 +22,7 @@ project, and how the project and the template stay in step.
 | `scripts/check-all.sh` | Every check: the language's, the backlog, the dashboard sources, the docs, the records, the licences | Once before a set of tasks ends, and in CI |
 | `scripts/check-docs.py` | Links between pages resolve, ids cited exist, the decision log is well formed, no placeholder is left | In `check-all.sh` |
 | `scripts/check-records.py` | The dashboard was recorded, and a change comes with its HISTORY line and its project log entry | In `check-all.sh` and on pull requests |
+| `scripts/setup-github.sh` | Turns the automatic review on for the GitHub repository: the secret of the owner's Claude plan and the rules of `main` ([below](#the-automatic-review)) | Once, by the owner on their computer; again when the token expires |
 | `.github/workflows/review.yml` and `scripts/review-report.py` | A model reviews the change for bugs, security and performance, posts what it found on the pull request, and fails the check when something blocks the merge ([below](#the-automatic-review)) | On every push to a pull request |
 | `docs/` | The goals, decisions, plan, standards and records | Opened when a task touches them |
 
@@ -66,7 +67,12 @@ its answer into one comment on the pull request:
   and fails the check.
 
 It runs on the owner's Claude subscription, so the owner turns it on,
-once per repository:
+once per repository. `scripts/setup-github.sh` does it all, on the
+owner's computer with the GitHub CLI (`gh`) signed in, and can be run
+again at any time (the kit's `install.sh` runs it for a new project):
+it offers to run `claude setup-token`, reads the token without showing
+it or writing it anywhere, saves it as the secret, and writes the
+ruleset `agent-kit: main` of steps 2 and 3. By hand, the steps are:
 
 1. Give the workflow the subscription's token. On a computer where
    Claude Code is installed, run `claude setup-token`, sign in with the
@@ -93,7 +99,13 @@ once per repository:
    from Code Owners" in the same rule, and such a change waits for the
    owner. When the agent works under the owner's own account, GitHub
    does not let the author approve: the owner reads that change and
-   merges it with the rule's bypass, knowing why.
+   merges it with the rule's bypass, knowing why. So the ruleset asks
+   for no approval count, and lets the repository's admins bypass it
+   only through a pull request, never by a direct push.
+
+GitHub Free has no rulesets for private repositories. There the review
+still comments on every pull request, but cannot stop a merge; making the
+repository public, or GitHub Pro, lets it.
 
 Until one of the secrets exists, the review is skipped with a notice and the
 check passes; drafts and pull requests from forks are skipped the same

@@ -5,6 +5,32 @@ from the template reads this file to learn what is newer than its own kit
 version (`docs/kit.md` in the project, and the `update-from-template`
 skill).
 
+## Changes in 1.5.0 (2026-11-24)
+
+* Added: `install.sh`, one command for the whole installation. `new NAME`
+  makes the project from the template, fills it with the owner's
+  defaults, creates a private GitHub repository, pushes the first commit
+  and turns the automatic review on; `existing` adds the kit to a project
+  under way on a branch, never overwriting a file (its `AGENTS.md`,
+  `CLAUDE.md`, `.claude/settings.json`, `.gitignore` and `CODEOWNERS` get
+  the kit's part added, a workflow of the same name is added as `kit-`);
+  `update` takes the newest kit for the user and says what a project
+  needs; `github` and `user` run one part alone. Each can be run again.
+  It also runs alone, fetching the kit: `bash <(curl -fsSL .../install.sh)`.
+* Added: `scripts/setup-github.sh` turns the automatic review on for a
+  repository: it saves the token of `claude setup-token` as the secret
+  `CLAUDE_CODE_OAUTH_TOKEN` through a pipe (never on disk or on a command
+  line), and writes the ruleset `agent-kit: main` (pull requests, the
+  checks `Review` and `checks.yml` required, Code Owners for `.github/`,
+  no approval count since a personal account cannot approve its own, the
+  admins' bypass only through a pull request). On GitHub Free with a
+  private repository it says that rulesets are not available and goes on.
+* Added: `INSTALL.md` and `INSTALACAO.md`, the manual for installing the
+  kit in a new project or in one under way, and for updating it.
+* Changed: `start-project` adopts a project under way: the code is the
+  brief, and the files the installer kept are merged with the kit's.
+  `init-project.sh` points to `scripts/setup-github.sh`.
+
 ## Changes in 1.4.1 (2026-11-24)
 
 * Changed: The automatic review runs on the owner's Claude Pro or Max

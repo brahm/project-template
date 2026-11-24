@@ -12,16 +12,26 @@ e português do Brasil).
 
 ## Começo rápido
 
+Um comando, no seu computador, com `git`, Python 3.11+ e o `gh` (a linha
+de comando do GitHub) instalados:
+
 ```sh
-git clone https://github.com/brahm/project-template agent-kit
-agent-kit/user-level/install-user.sh          # uma vez por computador: regras, skills, seus padrões
-cp -R agent-kit/project-template meu-projeto  # uma vez por projeto
-cd meu-projeto && git init
-claude                                         # ou codex, pi, gemini...
+bash <(curl -fsSL https://raw.githubusercontent.com/brahm/project-template/main/install.sh) new meu-projeto
 ```
 
-Depois diga ao agente, com as suas palavras, o que você quer construir.
-Ele faz o resto e relata o que assumiu.
+Ele cria `meu-projeto` a partir do modelo, cria um repositório privado no
+GitHub, envia o primeiro commit, salva o token do seu plano Claude Pro ou
+Max para a revisão automática e protege a `main`. Depois:
+
+```sh
+cd meu-projeto && claude                       # ou codex, pi, gemini...
+```
+
+e diga ao agente, com as suas palavras, o que você quer construir. Ele faz
+o resto e relata o que assumiu. Para um projeto que já está em andamento,
+use `existing` no lugar de `new meu-projeto`, na pasta dele. O manual,
+[INSTALACAO.md](INSTALACAO.md), tem todos os casos, as opções e como
+atualizar.
 
 ## O que vem no pacote
 
@@ -29,6 +39,7 @@ Ele faz o resto e relata o que assumiu.
 | --- | --- | --- |
 | `project-template/` | Um repositório para começar projetos novos: `AGENTS.md` (a fonte única das regras), `CLAUDE.md` apontando para ele, `docs/` (objetivos, decisões, arquitetura, roteiro, verificação, padrões de engenharia, especificações, inventário, pendências, log do projeto, lições, estilo de escrita, painel e o Second Brain), `HISTORY.md`, `CONTRIBUTING.md`, doze skills, hooks de sessão, scripts, modelos de PR e de issue, CI com revisão automática de cada pull request, `REUSE.toml` e `init-project.sh` | Cada repositório novo |
 | `user-level/` | As regras de trabalho para o seu usuário (todos os projetos), os seus padrões para projetos novos e `install-user.sh`, que os instala com as skills no Claude Code, no Codex e no Pi sem sobrescrever seus arquivos | Seu computador, uma vez |
+| `install.sh` | O instalador: um projeto novo com o repositório no GitHub e a revisão automática, o kit num projeto em andamento, as atualizações ([INSTALACAO.md](INSTALACAO.md)) | O seu computador, cada projeto |
 | `desktop/` | Texto para colar nas instruções de um Projeto do Claude ou do ChatGPT, e cada skill em .zip para enviar ao Claude | Apps de conversa, sem repositório |
 | `tools/`, `AGENTS.md`, `HISTORY.md` | Para trabalhar no próprio kit: as regras, o script que refaz os .zip, o teste que cria um projeto a partir do modelo e as versões do kit | Quem altera o kit |
 
@@ -60,7 +71,7 @@ certo, e com uma regra só quando nada mais serve.
   e otimizações, e comenta no pull request o que precisa ser corrigido,
   ou que tudo passou. Um apontamento bloqueante faz a verificação falhar,
   e o merge não acontece por engano. Roda no seu plano Claude Pro ou Max,
-  com o token do `claude setup-token` como segredo do repositório.
+  e o instalador liga a revisão sozinho.
 - **O que o projeto aprende fica guardado e é achado em segundos.** O
   Second Brain (`docs/brain/`) tem uma nota em Markdown por assunto: como
   uma parte funciona, os fatos do domínio, as manias de um serviço, a
@@ -141,71 +152,29 @@ só o que a tecnologia do projeto pede.
 
 ## Instalação
 
-### O que é preciso
+O [INSTALACAO.md](INSTALACAO.md) é o manual: o que é preciso, um projeto
+novo, um projeto em andamento, a parte do GitHub e a atualização. Em
+resumo:
 
-- `bash`, `git` e Python 3.11 ou mais novo. Os scripts não usam mais nada.
-- Opcional: o [`reuse`](https://reuse.software) para a verificação de
-  licenças (`pipx install reuse`) e o `gh`, a linha de comando do GitHub,
-  para a lista de pull requests no painel. Sem eles, esses dois passos
-  são pulados.
+| Comando | O que faz |
+| --- | --- |
+| `install.sh new NOME` | Um projeto novo na pasta `NOME`: o modelo preenchido com os seus padrões, um repositório privado no GitHub (`--public`, `--no-github`), o primeiro commit enviado, a revisão automática ligada |
+| `install.sh existing [PASTA]` | O kit num projeto em andamento, num branch `agent-kit`, sem sobrescrever nenhum arquivo: o seu `AGENTS.md`, `CLAUDE.md`, `.claude/settings.json`, `.gitignore` e `CODEOWNERS` recebem a parte do kit; um workflow de mesmo nome chega como `kit-NOME.yml`; depois o agente adota o kit (`start-project`) |
+| `install.sh update [PASTA]` | O kit mais novo (`git pull`), as regras e skills dele para o seu usuário, e a versão do kit do projeto `PASTA` comparada com a mais nova |
+| `install.sh github [PASTA]` | Só a parte do GitHub, `scripts/setup-github.sh`: o segredo `CLAUDE_CODE_OAUTH_TOKEN` e o ruleset da `main` |
+| `install.sh user` | Só as regras e skills para o seu usuário, `user-level/install-user.sh` |
 
-### 1. Baixar o kit
+Rode a partir de uma cópia do kit (`git clone
+https://github.com/brahm/project-template agent-kit`, depois
+`agent-kit/install.sh ...`), ou sozinho com `bash <(curl -fsSL
+https://raw.githubusercontent.com/brahm/project-template/main/install.sh)
+...`, que baixa o kit antes. Todo comando pode ser rodado de novo: o que
+já foi feito é mantido e o que falta é feito.
 
-```sh
-git clone https://github.com/brahm/project-template agent-kit
-```
+### O que o instalador prepara para cada agente
 
-Para começar projetos pelo botão "Use this template" do GitHub em vez de
-copiar uma pasta, crie uma vez um repositório só com a pasta do modelo:
-
-```sh
-cp -R agent-kit/project-template meu-modelo && cd meu-modelo
-git init -b main && git add -A && git commit -m "Agent project template"
-gh repo create meu-modelo --private --source . --push
-```
-
-Depois marque "Template repository" nas configurações dele no GitHub. Não
-use "Use this template" no repositório do kit: isso copia o kit inteiro, e
-não o modelo de projeto.
-
-### 2. Instalar para o seu usuário (uma vez por computador)
-
-```sh
-agent-kit/user-level/install-user.sh          # --dry-run para ver antes; --tools claude,codex para escolher
-```
-
-Ele acrescenta as regras de trabalho entre duas linhas marcadoras em
-`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md` e `~/.pi/agent/AGENTS.md`, copia
-as skills para `~/.claude/skills`, `~/.codex/skills` e `~/.pi/agent/skills`,
-e pergunta uma única vez os seus padrões para projetos novos (seu nome, os
-idiomas, o fuso horário, a licença, a conta do GitHub), que grava abaixo
-das regras para que nenhum projeto pergunte de novo. Edite ali quando
-quiser. Ele nunca sobrescreve um arquivo seu: rodar de novo substitui só o
-bloco das regras e mantém os seus padrões e as skills que você já tem.
-Quando o kit mudar, `--replace-skills` troca as skills dele pela versão
-nova. Todas as opções: `install-user.sh --help`.
-
-Este passo é opcional. Ele leva as regras e as skills a projetos que não
-vieram do modelo, e poupa ao agente uma ou duas perguntas nos que vieram.
-
-### 3. Começar um projeto
-
-```sh
-cp -R agent-kit/project-template meu-projeto  # ou "Use this template" no seu repositório de modelo
-cd meu-projeto && git init                    # sem git init depois de "Use this template"
-```
-
-Abra o agente na pasta e diga o que você quer construir. Ele vê que o
-projeto não foi iniciado, roda o `init-project.sh` com o que já sabe (o seu
-briefing, os seus padrões, o usuário e o remoto do git), pergunta só o que
-trava o plano, escreve os objetivos, as decisões, o inventário e o
-roteiro, ajusta as verificações e as skills à sua tecnologia e relata o
-que assumiu. Você nunca precisa citar uma skill.
-
-Para preencher os marcadores à mão antes, rode `./init-project.sh`: ele
-pergunta nome, dono, idiomas, fuso horário e licença
-(`./init-project.sh --help` lista as opções). Ele também prepara cada
-agente (`--tools all` por padrão, ou uma lista como `--tools claude,codex`):
+O `init-project.sh`, que o instalador roda, prepara cada agente
+(`--tools all` por padrão, ou uma lista como `--tools claude,codex`):
 
 | Agente | O que ele lê | O que o script faz |
 | --- | --- | --- |
@@ -217,11 +186,11 @@ agente (`--tools all` por padrão, ou uma lista como `--tools claude,codex`):
 | Cursor | `AGENTS.md` e `.cursor/rules/` | Cria uma regra apontando para ele |
 | Outros (Aider, Zed, Amp, Jules...) | Em geral `AGENTS.md`; se não, aponte para ele (Aider: `--read AGENTS.md`) | Nada |
 
-No Windows, use `--copy` em vez de links. O Claude Code pergunta uma vez
-se você confia na pasta; aceite, senão os scripts liberados do projeto
-continuam pedindo permissão. Só o Claude Code roda o relatório de estado
-sozinho; os outros agentes rodam `python3 scripts/status.py` primeiro,
-como diz a regra 1 do `AGENTS.md`.
+No Windows, rode no Git Bash ou no WSL, com `--copy` em vez de links. O
+Claude Code pergunta uma vez se você confia na pasta; aceite, senão os
+scripts liberados do projeto continuam pedindo permissão. Só o Claude Code
+roda o relatório de estado sozinho; os outros agentes rodam
+`python3 scripts/status.py` primeiro, como diz a regra 1 do `AGENTS.md`.
 
 ### Claude desktop e ChatGPT desktop (sem repositório)
 
@@ -265,23 +234,23 @@ O que você vai olhar, além dos relatórios:
 - **A revisão automática**: um comentário em cada pull request,
   atualizado a cada push: aprovada, aprovada com pontos para ler, ou
   bloqueada, com o arquivo, a linha e a correção de cada apontamento.
-  Para ligar, rode `claude setup-token` e adicione o token que ele mostra
-  ao repositório (Settings > Secrets and variables > Actions) como o
-  segredo `CLAUDE_CODE_OAUTH_TOKEN`: as revisões passam a usar o seu
-  plano Claude Pro ou Max, sem custo a mais. Depois torne obrigatória a
-  verificação `Review` na `main` e ligue "Require review from Code
-  Owners", para que um pull request não consiga desligar a revisão para
-  si mesmo (`docs/kit.md` do modelo, "The automatic review"). Sem o
-  segredo, a revisão é pulada com um aviso.
+  Roda no seu plano Claude Pro ou Max. O instalador liga a revisão; num
+  projeto feito de outro jeito, rode `scripts/setup-github.sh`, que salva
+  o token do `claude setup-token` como o segredo `CLAUDE_CODE_OAUTH_TOKEN`
+  e torna obrigatória a verificação `Review` na `main`, com "Require
+  review from Code Owners", para que um pull request não consiga desligar
+  a revisão para si mesmo (`docs/kit.md` do modelo, "The automatic
+  review"). Sem o segredo, a revisão é pulada com um aviso.
 - **Os registros**: `docs/decisions.md`, `docs/backlog/deferred.tsv`,
   `docs/project-log.md`, `docs/lessons.md` e `HISTORY.md`.
 - **O que o projeto sabe**: `python3 scripts/brain.py find PALAVRAS`, ou
   o índice de notas em `docs/brain/README.md`. As notas são Markdown
   puro, então também abrem como cofre no Obsidian ou em qualquer editor.
 
-Para manter um projeto em dia com o kit, atualize o kit (`git -C agent-kit
-pull`) e diga ao agente, no projeto, que o modelo mudou. Para os arquivos
-do seu usuário, rode `install-user.sh --replace-skills` de novo.
+Para manter um projeto em dia com o kit, rode `install.sh update` nele e
+depois diga ao agente "atualize o kit"; ele traz as regras, as skills e as
+verificações novas sem perder o que foi ajustado ao projeto
+([INSTALACAO.md](INSTALACAO.md#atualizar)).
 
 ## Alterar o kit
 

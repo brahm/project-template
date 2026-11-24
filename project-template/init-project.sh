@@ -175,6 +175,8 @@ left=$(grep -rIl --exclude=init-project.sh --exclude=TEMPLATE.md --exclude-dir=.
 if [ "$KEEP" = 0 ]; then
     rm -f TEMPLATE.md "$0"
 fi
+# The kit's install.sh does the next steps itself and says what is left.
+[ -z "${KIT_INSTALLER:-}" ] || exit 0
 cat <<MSG
 
 Done. Next:
@@ -185,8 +187,8 @@ Done. Next:
      then delete the "not started" section of AGENTS.md and the example
      rows (F-001 to F-007, B-001, L-001).
   2. Check that LICENSES/ has the licence text (reuse download --all).
-  3. To have every pull request reviewed before the merge, run
-     "claude setup-token" and add the token it prints to the GitHub
-     repository as the secret CLAUDE_CODE_OAUTH_TOKEN (docs/kit.md,
-     "The automatic review").
+  3. To have every pull request reviewed before the merge, once the
+     project is on GitHub, run scripts/setup-github.sh: it saves the token
+     of your Claude plan (claude setup-token) as a secret and protects
+     main (docs/kit.md, "The automatic review").
 MSG

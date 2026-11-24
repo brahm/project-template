@@ -10,16 +10,25 @@ and other agents that read `AGENTS.md`.
 
 ## Quick start
 
+One command, on your computer, with `git`, Python 3.11+ and the GitHub CLI
+`gh` installed:
+
 ```sh
-git clone https://github.com/brahm/project-template agent-kit
-agent-kit/user-level/install-user.sh          # once per computer: rules, skills, your defaults
-cp -R agent-kit/project-template my-project   # once per project
-cd my-project && git init
-claude                                         # or codex, pi, gemini...
+bash <(curl -fsSL https://raw.githubusercontent.com/brahm/project-template/main/install.sh) new my-project
 ```
 
-Then tell the agent what you want to build, in your own words. It does the
-rest and reports what it assumed.
+It makes `my-project` from the template, creates a private GitHub
+repository, pushes the first commit, saves the token of your Claude Pro or
+Max plan for the automatic review and protects `main`. Then:
+
+```sh
+cd my-project && claude                       # or codex, pi, gemini...
+```
+
+and tell the agent what you want to build, in your own words. It does the
+rest and reports what it assumed. For a project already under way, use
+`existing` instead of `new my-project`, in its folder. The manual,
+[INSTALL.md](INSTALL.md), has every case, the options and how to update.
 
 ## What is in it
 
@@ -27,6 +36,7 @@ rest and reports what it assumed.
 | --- | --- | --- |
 | `project-template/` | A repository to start new projects from: `AGENTS.md` (the single source of the rules), `CLAUDE.md` pointing to it, `docs/` (goals, decisions, architecture, roadmap, verification, engineering standards, specifications, inventory, backlog, project log, lessons, writing style, dashboard, and the Second Brain), `HISTORY.md`, `CONTRIBUTING.md`, twelve skills, session hooks, scripts, PR and issue templates, CI with an automatic review of each pull request, `REUSE.toml`, and `init-project.sh` | Every new repository |
 | `user-level/` | The working rules for your user (all projects), your defaults for new projects, and `install-user.sh`, which adds them and the skills to Claude Code, Codex and Pi without overwriting your files | Your computer, once |
+| `install.sh` | The installer: a new project with its GitHub repository and automatic review, the kit in a project under way, updates ([INSTALL.md](INSTALL.md)) | Your computer, each project |
 | `desktop/` | Text to paste into the instructions of a Claude or ChatGPT Project, and each skill zipped for upload to Claude | Chat apps without a repository |
 | `tools/`, `AGENTS.md`, `HISTORY.md` | For working on the kit itself: the rules, the script that rebuilds the zips, the test that makes a project from the template, and the kit's versions | Whoever changes the kit |
 
@@ -58,8 +68,8 @@ it matters, and by a rule only when nothing else will.
   not write the change reads it for bugs, security problems and
   optimisations, and posts on the pull request what must be fixed, or
   that it passed. A blocking finding fails the check, so it cannot be
-  merged by mistake. It runs on your Claude Pro or Max plan, with the
-  token of `claude setup-token` as a repository secret.
+  merged by mistake. It runs on your Claude Pro or Max plan, and the
+  installer turns it on for you.
 - **What the project learns is kept, and found in seconds.** The Second
   Brain (`docs/brain/`) holds one Markdown note per subject: how a part
   works, the facts of the domain, the quirks of a service, the cause of
@@ -138,71 +148,27 @@ only what the project's technology needs.
 
 ## Install
 
-### What you need
+[INSTALL.md](INSTALL.md) is the manual: what you need, a new project, a
+project under way, the GitHub part, and updating. In short:
 
-- `bash`, `git` and Python 3.11 or later. The scripts use nothing else.
-- Optional: [`reuse`](https://reuse.software) for the licence check
-  (`pipx install reuse`), and the GitHub CLI `gh` for the list of pull
-  requests on the dashboard. Without them, those two steps are skipped.
+| Command | What it does |
+| --- | --- |
+| `install.sh new NAME` | A new project in the folder `NAME`: the template filled with your defaults, a private GitHub repository (`--public`, `--no-github`), the first commit pushed, the automatic review turned on |
+| `install.sh existing [DIR]` | The kit in a project under way, on a branch `agent-kit`, without overwriting any file: your `AGENTS.md`, `CLAUDE.md`, `.claude/settings.json`, `.gitignore` and `CODEOWNERS` get the kit's part added; a workflow of the same name arrives as `kit-NAME.yml`; the agent then adopts the kit (`start-project`) |
+| `install.sh update [DIR]` | The newest kit (`git pull`), its rules and skills for your user, and the kit version of the project `DIR` against the newest |
+| `install.sh github [DIR]` | Only the GitHub part, `scripts/setup-github.sh`: the secret `CLAUDE_CODE_OAUTH_TOKEN` and the ruleset of `main` |
+| `install.sh user` | Only the rules and skills for your user, `user-level/install-user.sh` |
 
-### 1. Get the kit
+Run it from a clone of the kit (`git clone
+https://github.com/brahm/project-template agent-kit`, then
+`agent-kit/install.sh ...`), or alone with `bash <(curl -fsSL
+https://raw.githubusercontent.com/brahm/project-template/main/install.sh)
+...`, which fetches the kit first. Every command can be run again: what is
+done is kept and what is missing is done.
 
-```sh
-git clone https://github.com/brahm/project-template agent-kit
-```
+### What the installer sets up for each agent
 
-To start projects with GitHub's "Use this template" button instead of
-copying a folder, make a repository of its own from the template folder,
-once:
-
-```sh
-cp -R agent-kit/project-template my-template && cd my-template
-git init -b main && git add -A && git commit -m "Agent project template"
-gh repo create my-template --private --source . --push
-```
-
-Then mark it "Template repository" in its settings on GitHub. Do not use
-"Use this template" on the kit repository itself: that copies the whole
-kit, not the project template.
-
-### 2. Install for your user (once per computer)
-
-```sh
-agent-kit/user-level/install-user.sh          # --dry-run to see first; --tools claude,codex to choose
-```
-
-It appends the working rules between marker lines to `~/.claude/CLAUDE.md`,
-`~/.codex/AGENTS.md` and `~/.pi/agent/AGENTS.md`, copies the skills to
-`~/.claude/skills`, `~/.codex/skills` and `~/.pi/agent/skills`, and asks
-once for your defaults for new projects (your name, the languages, the
-time zone, the licence, the GitHub account), which it writes below the
-rules so that no project asks for them again. Edit them there whenever you
-like. It never overwrites a file of yours: a second run replaces only the
-rules block and keeps your defaults and any skill you already have. After
-the kit changes, `--replace-skills` takes the new version of its skills.
-All options: `install-user.sh --help`.
-
-This step is optional. It gives the rules and the skills to projects that
-were not made from the template, and saves the agent a question or two in
-those that were.
-
-### 3. Start a project
-
-```sh
-cp -R agent-kit/project-template my-project   # or "Use this template" on your template repository
-cd my-project && git init                     # skip git init after "Use this template"
-```
-
-Open your agent in the folder and say what you want to build. It sees that
-the project has not been started, runs `init-project.sh` with what it
-knows (your brief, your defaults, the git user and remote), asks only what
-blocks the plan, writes the goals, the decisions, the inventory and the
-roadmap, fits the checks and the skills to your technology, and reports
-what it assumed. You never name a skill.
-
-To fill the placeholders by hand first, run `./init-project.sh`: it asks
-for the name, the owner, the languages, the time zone and the licence
-(`./init-project.sh --help` lists the options). It also sets up each agent
+`init-project.sh`, which the installer runs, sets up each agent
 (`--tools all` by default, or a list such as `--tools claude,codex`):
 
 | Agent | What it reads | What the script does |
@@ -215,11 +181,11 @@ for the name, the owner, the languages, the time zone and the licence
 | Cursor | `AGENTS.md`, `.cursor/rules/` | Writes a rule pointing to it |
 | Others (Aider, Zed, Amp, Jules, ...) | Usually `AGENTS.md`; otherwise point them to it (Aider: `--read AGENTS.md`) | Nothing needed |
 
-On Windows, use `--copy` instead of links. Claude Code asks once whether
-you trust the folder; accept it, or the project's allowed scripts keep
-asking for permission. Only Claude Code runs the state report by itself;
-the other agents run `python3 scripts/status.py` first, as rule 1 of
-`AGENTS.md` says.
+On Windows, run it in Git Bash or WSL, with `--copy` instead of links.
+Claude Code asks once whether you trust the folder; accept it, or the
+project's allowed scripts keep asking for permission. Only Claude Code
+runs the state report by itself; the other agents run
+`python3 scripts/status.py` first, as rule 1 of `AGENTS.md` says.
 
 ### Claude desktop and ChatGPT desktop (no repository)
 
@@ -262,12 +228,12 @@ What you will look at, besides the reports:
   files without a licence.
 - **The automatic review**: one comment on each pull request, updated on
   every push: passed, passed with points to read, or blocked, with each
-  finding's file, line and fix. To turn it on, run `claude setup-token`
-  and add the token it prints to the repository as the secret
-  `CLAUDE_CODE_OAUTH_TOKEN`: the reviews then use your Claude Pro or Max
-  plan. Then make the check `Review`
-  required on `main`, and turn on "Require review from Code Owners", so
-  that a pull request cannot switch the review off for itself
+  finding's file, line and fix. It runs on your Claude Pro or Max plan.
+  The installer turns it on; in a project made otherwise, run
+  `scripts/setup-github.sh`, which saves the token of `claude
+  setup-token` as the secret `CLAUDE_CODE_OAUTH_TOKEN` and makes the
+  check `Review` required on `main`, with "Require review from Code
+  Owners", so that a pull request cannot switch the review off for itself
   (`docs/kit.md` in the template, "The automatic review").
 - **The records**: `docs/decisions.md`, `docs/backlog/deferred.tsv`,
   `docs/project-log.md`, `docs/lessons.md` and `HISTORY.md`.
@@ -275,9 +241,10 @@ What you will look at, besides the reports:
   the index of notes in `docs/brain/README.md`. The notes are plain
   Markdown, so they also open as a vault in Obsidian or any editor.
 
-To keep a project in step with the kit, pull the kit (`git -C agent-kit
-pull`) and tell the agent in the project that the template changed. For
-your user files, run `install-user.sh --replace-skills` again.
+To keep a project in step with the kit, run `install.sh update` in it,
+then tell the agent "update the kit"; it brings the new rules, skills and
+checks in without losing what was fitted to the project
+([INSTALL.md](INSTALL.md#update)).
 
 ## Changing the kit
 
